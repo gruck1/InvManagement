@@ -2,12 +2,11 @@
 /* Latest changes
 	- Formatted the vector printing better
 	- You can now edit name, amount and price with proper formatting
-	- GRUCK IF YOU CAN SEE THIS THE GITHUB TEST WORKED
 */
 
-//hello daniel
-// THIS IS SECOND EPIC TEST
-//im grucking it
+/* Currently doing/next task
+	- Add and delete items as admin
+*/
 
 #include <iostream>
 #include <format>
