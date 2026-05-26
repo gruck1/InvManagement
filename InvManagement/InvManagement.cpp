@@ -2,7 +2,7 @@
 /* Latest changes
 	- Formatted the vector printing better
 	- You can now edit name, amount and price with proper formatting
-	- lowk forgot what else
+	- GRUCK IF YOU CAN SEE THIS THE GITHUB TEST WORKED
 */
 
 //hello daniel
