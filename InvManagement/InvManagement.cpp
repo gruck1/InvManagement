@@ -159,6 +159,7 @@ static void fileToVector() {
 		file.close();
 	}
 }
+//test
 //check if the username and password match any of the accounts in the accounts vector, if it does return true, if not return false
 //also give the user admin access if the account is an admin account
 static bool checkLogin(string& username, string& password) {
