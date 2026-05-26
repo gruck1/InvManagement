@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="InvManagement/InvManagement.vcxproj" Id="64cd1c9c-8dd3-4247-9d8c-e6ea63019ed0" />
+</Solution>

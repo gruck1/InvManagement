@@ -1,0 +1,11 @@
+apple
+50
+10
+
+banana
+15
+8
+
+orage
+12
+30
