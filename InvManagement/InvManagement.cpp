@@ -39,7 +39,6 @@ static int validateInput(auto& validator) {
 
 }
 
-//hi
 // If no files exist, create them
 static void createFiles() {
 
