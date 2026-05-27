@@ -21,10 +21,14 @@ vector<vector<string>>wellington = {};
 vector<vector<string>>christchurch = {};
 vector<vector<string>>auckland = {};
 vector<vector<string>>accounts = {};
+vector<vector<string>>employees = {};
+vector<vector<string>>roster = {};
 
 vector<vector<string>>& targetVec = wellington;
 
-string storeString{}, fileName, formats[3] = { "name", "amount", "price" };
+string storeString{}, fileName, formats[3] = { "name", "amount", "price" }, formatsEmployee[3] = { "Name: ", "Pay per hour: ", "Employee ID: " };
+
+
 
 int storeNum{};
 bool loggedIn = false;
@@ -120,75 +124,83 @@ static void fileToVector() {
 			}
 			maxLine -= 1;
 
-			switch (index) {
-			case 0:
-				wellington.push_back({});
-				break;
+			targetVec.push_back({});
 
-			case 1:
-				christchurch.push_back({});
-				break;
+			//switch (index) {
+			//case 0:
+			//	wellington.push_back({});
+			//	break;
 
-			case 2:
-				auckland.push_back({});
-				break;
+			//case 1:
+			//	christchurch.push_back({});
+			//	break;
 
-			case 3:
-				accounts.push_back({});
+			//case 2:
+			//	auckland.push_back({});
+			//	break;
 
-			}
+			//case 3:
+			//	accounts.push_back({});
+
+			//}
 
 			file.clear();
 			file.seekg(0);
 			while (getline(file, line)) {
 				currentLine++;
-				cout << currentLine << ", ";
-				cout << maxLine << endl;
 				if (currentLine == maxLine) {
 					break;
 				}
 
-				switch (index) {
-				case 0:
-					if (line == "") {
-						wellington.push_back({});
-						i++;
-					}
-					else {
-						wellington[i].push_back(line);
-					}
-					break;
+				if (line == "") {
+					targetVec.push_back({});
+					i++;
 
-				case 1:
-					if (line == "") {
-						christchurch.push_back({});
-						i++;
-					}
-					else {
-						christchurch[i].push_back(line);
-					}
-					break;
-
-				case 2:
-					if (line == "") {
-						auckland.push_back({});
-						i++;
-					}
-					else {
-						auckland[i].push_back(line);
-					}
-					break;
-
-				case 3:
-					if (line == "") {
-						accounts.push_back({});
-						i++;
-					}
-					else {
-						accounts[i].push_back(line);
-					}
-					break;
+				} else {
+					targetVec[i].push_back(line);
 				}
+
+				//switch (index) {
+				//case 0:
+				//	if (line == "") {
+				//		wellington.push_back({});
+				//		i++;
+				//	}
+				//	else {
+				//		wellington[i].push_back(line);
+				//	}
+				//	break;
+
+				//case 1:
+				//	if (line == "") {
+				//		christchurch.push_back({});
+				//		i++;
+				//	}
+				//	else {
+				//		christchurch[i].push_back(line);
+				//	}
+				//	break;
+
+				//case 2:
+				//	if (line == "") {
+				//		auckland.push_back({});
+				//		i++;
+				//	}
+				//	else {
+				//		auckland[i].push_back(line);
+				//	}
+				//	break;
+
+				//case 3:
+				//	if (line == "") {
+				//		accounts.push_back({});
+				//		i++;
+				//	}
+				//	else {
+				//		accounts[i].push_back(line);
+				//	}
+				//	break;
+				//}
 
 			}
 		}
@@ -258,14 +270,18 @@ static void pickStore() {
 	switch (storeNum) {
 	case 1:
 		storeString = "Wellington";
+		targetVec = wellington;
 		break;
 
 	case 2:
 		storeString = "Christchurch";
+		targetVec = christchurch;
 		break;
 
 	case 3:
 		storeString = "Auckland";
+		targetVec = auckland;
+		break;
 	}
 
 }
@@ -275,73 +291,92 @@ static void viewInventory() {
 
 	pickStore();
 
-	switch (storeNum) {
-	case 1:
 
-		if (wellington.size() == 0) {
-			cout << "Wellington's inventory has no stock\n";
-			return;
-		}
 
-		for (int i = 0; i < wellington.size(); i++) {
-			cout << format("Item {}\n", i + 1);
-			for (int j = 0; j < wellington[i].size(); j++) {
-				if (j == 2) {
-					cout << format("{}: $", formats[j]);
-				}
-				else {
-					cout << format("{}: ", formats[j]);
-				}
-				cout << format("{}\n", wellington[i][j]);
+	for (int i = 0; i < targetVec.size(); i++) {
+		cout << format("Item {}\n", i + 1);
+		for (int j = 0; j < targetVec[i].size(); j++) {
+			if (j == 2) {
+				cout << format("{}: $", formats[j]);
 			}
-			cout << "\n";
-		}
-		break;
-
-	case 2:
-
-		if (christchurch.size() == 0) {
-			cout << "Christchurch's inventory has no stock\n";
-			return;
-		}
-
-		for (int i = 0; i < christchurch.size(); i++) {
-			cout << format("Item {}\n", i + 1);
-			for (int j = 0; j < christchurch[i].size(); j++) {
-				if (j == 2) {
-					cout << format("{}: $", formats[j]);
-				}
-				else {
-					cout << format("{}: ", formats[j]);
-				}
-				cout << format("{}\n", christchurch[i][j]);
+			else {
+				cout << format("{}: ", formats[j]);
 			}
-			cout << "\n";
+			cout << format("{}\n", targetVec[i][j]);
 		}
-		break;
-
-	case 3:
-
-		if (auckland.size() == 0) {
-			cout << "Auckland's inventory has no stock\n";
-			return;
-		}
-
-		for (int i = 0; i < auckland.size(); i++) {
-			cout << format("Item {}\n", i + 1);
-			for (int j = 0; j < auckland[i].size(); j++) {
-				if (j == 2) {
-					cout << format("{}: $", formats[j]);
-				}
-				else {
-					cout << format("{}: ", formats[j]);
-				}
-				cout << format("{}\n", auckland[i][j]);
-			}
-			cout << "\n";
-		}
-		break;
+		cout << "\n";
 	}
+
+
+	//switch (storeNum) {
+	//case 1:
+
+	//	if (wellington.size() == 0) {
+	//		cout << "Wellington's inventory has no stock\n";
+	//		return;
+	//	}
+
+	//	//formatting stuff
+
+	//	for (int i = 0; i < wellington.size(); i++) {
+	//		cout << format("Item {}\n", i + 1);
+	//		for (int j = 0; j < wellington[i].size(); j++) {
+	//			if (j == 2) {
+	//				cout << format("{}: $", formats[j]);
+	//			}
+	//			else {
+	//				cout << format("{}: ", formats[j]);
+	//			}
+	//			cout << format("{}\n", wellington[i][j]);
+	//		}
+	//		cout << "\n";
+	//	}
+	//	break;
+
+	//case 2:
+
+	//	if (christchurch.size() == 0) {
+	//		cout << "Christchurch's inventory has no stock\n";
+	//		return;
+	//	}
+
+	//	for (int i = 0; i < christchurch.size(); i++) {
+	//		cout << format("Item {}\n", i + 1);
+	//		for (int j = 0; j < christchurch[i].size(); j++) {
+	//			if (j == 2) {
+	//				cout << format("{}: $", formats[j]);
+	//			}
+	//			else {
+	//				cout << format("{}: ", formats[j]);
+	//			}
+	//			cout << format("{}\n", christchurch[i][j]);
+	//		}
+	//		cout << "\n";
+	//	}
+	//	break;
+
+	//case 3:
+
+	//	if (auckland.size() == 0) {
+	//		cout << "Auckland's inventory has no stock\n";
+	//		return;
+	//	}
+
+	//	for (int i = 0; i < auckland.size(); i++) {
+	//		cout << format("Item {}\n", i + 1);
+	//		for (int j = 0; j < auckland[i].size(); j++) {
+	//			if (j == 2) {
+	//				cout << format("{}: $", formats[j]);
+	//			}
+	//			else {
+	//				cout << format("{}: ", formats[j]);
+	//			}
+	//			cout << format("{}\n", auckland[i][j]);
+	//		}
+	//		cout << "\n";
+	//	}
+	//	break;
+	//}
 }
 
 // Gets the specific item that the user wants to interact with it so it can be used easily
@@ -515,6 +550,8 @@ static void addItem() {
 	double price{};
 	fstream file;
 
+
+
 	cout << "Enter a name: ";
 	cin.ignore(numeric_limits<streamsize>::max(), '\n');
 	getline(cin, name);
@@ -550,6 +587,49 @@ static void addItem() {
 
 	cout << format("Successfully added {} to {}'s inventory\n", name, storeString);
 
+}
+
+
+static void editEmployees() {
+
+	//in progress 
+
+	for (int i = 0; i < employees.size(); i++) {
+		cout << format("Employee {}\n", i + 1);
+		for (int j = 0; j < employees[i].size(); j++) {
+			if (j == 2) {
+				cout << format("{}", formatsEmployee[j]);
+			}
+			else {
+				cout << format("{}", formatsEmployee[j]);
+			}
+			cout << format("{}\n", employees[i][j]);
+		}
+		cout << "\n";
+	}
+
+
+
+
+	int max{}, answer{};
+
+	cout << "1. Add Employee\n2. Edit Employee\n3. Delete Employee\n\n";
+	cout << "Please choose an option: ";
+	validateInput(answer, 1, 3);
+
+	switch (answer) {
+	case 1:
+		max = wellington.size();
+		break;
+
+	case 2:
+		max = christchurch.size();
+		break;
+
+	case 3:
+		max = auckland.size();
+		break;
+	}
 }
 
 // Handles all the selecting stuff in the "edit inventory" menu
@@ -666,9 +746,11 @@ static void program() {
 				continue;
 			}
 
+			//check password security
 			cout << "Please enter a password (Password must be over 12 characters,\ncontain at least one number, and one special character): ";
 			checkPassword(password);
 
+			//save username and password without admin access
 			accounts.push_back({ username, password, "false" });
 
 			file.open("accounts.txt", ios::app);
@@ -688,8 +770,10 @@ static void program() {
 
 		int userChoice{};
 
+		//main interface for the program, different options for admin and employee accounts
 		cout << "===================Inventory Management System===================\n\n";
 		if (adminAccount) {
+			//admin options
 			cout << "1. View Inventory\n2. Edit Inventory\n3. Edit Employees\n4. Edit Roster\n5. Logout\n6. Exit";
 			cout << "\n\nSelect an option: ";
 			validateInput(userChoice, 1, 6);
@@ -705,14 +789,17 @@ static void program() {
 				break;
 
 			case 3:
-				cout << "Edit employees"; // add and delete employees from the accounts vector, then export the vector to the text file
+				// add and delete employees from the accounts vector, then export the vector to the text file
+				cout << "Edit employees"; 
 				break;
 
 			case 4:
-				cout << "Edit roster"; // add and delete shifts from the roster vector, then export the vector to the text file
+				// add and delete shifts from the roster vector, then export the vector to the text file
+				cout << "Edit roster"; 
 				break;
 
 			case 5:
+				//log out of account and return to log in screen
 				loggedIn = false;
 				adminAccount = false;
 				break;
@@ -755,9 +842,10 @@ static void program() {
 // When code starts, run these functions then loop program forever
 int main() {
 
-	targetVec.push_back({ "hello", "hi", "test" });
-	cout << format("testing: {}, {}, {}\n", targetVec[0][0], targetVec[0][1], targetVec[0][2]);
-	return 0;
+	targetVec = wellington;
+	targetVec.push_back({ "Hello" "hi", "shlooby" } );
+
+	cout << format("{}, {}, {}", wellington[0][0], wellington[0][1], wellington[0][2]);
 
 	createFiles();
 	fileToVector();
