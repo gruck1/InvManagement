@@ -22,7 +22,7 @@ vector<vector<string>>christchurch = {};
 vector<vector<string>>auckland = {};
 vector<vector<string>>accounts = {};
 
-vector<vector<string>>& targetVec = wellington;
+vector<vector<string>>* targetVec = &wellington;
 
 string storeString{}, fileName, formats[3] = { "name", "amount", "price" };
 
@@ -65,22 +65,22 @@ static void dynamicNaming(int index) {
 	switch (index) {
 	case 0:
 		fileName = "wellington.txt";
-		targetVec = wellington;
+		targetVec = &wellington;
 		break;
 
 	case 1:
 		fileName = "christchurch.txt";
-		targetVec = christchurch;
+		targetVec = &christchurch;
 		break;
 
 	case 2:
 		fileName = "auckland.txt";
-		targetVec = auckland;
+		targetVec = &auckland;
 		break;
 
 	case 3:
 		fileName = "accounts.txt";
-		targetVec = accounts;
+		targetVec = &accounts;
 		break;
 	}
 
@@ -114,16 +114,13 @@ static void fileToVector() {
 
 		if (file_size(fileName) > 0) {
 			int maxLine{}, currentLine{};
-			
+
 			while (getline(file, line)) {
 				maxLine++;
 			}
-			maxLine -= 1;
+			// maxLine -= 1;
 
-			switch (index) {
-			case 0:
-				wellington.push_back({});
-				break;
+			targetVec->push_back({});
 
 			case 1:
 				christchurch.push_back({});
@@ -142,32 +139,19 @@ static void fileToVector() {
 			file.seekg(0);
 			while (getline(file, line)) {
 				currentLine++;
-				cout << currentLine << ", ";
-				cout << maxLine << endl;
+
 				if (currentLine == maxLine) {
 					break;
 				}
 
-				switch (index) {
-				case 0:
-					if (line == "") {
-						wellington.push_back({});
-						i++;
-					}
-					else {
-						wellington[i].push_back(line);
-					}
-					break;
+				if (line == "") {
+					targetVec->push_back({});
+					i++;
 
-				case 1:
-					if (line == "") {
-						christchurch.push_back({});
-						i++;
-					}
-					else {
-						christchurch[i].push_back(line);
-					}
-					break;
+				}
+				else {
+					(*targetVec)[i].push_back(line);
+				}
 
 				case 2:
 					if (line == "") {
@@ -258,14 +242,18 @@ static void pickStore() {
 	switch (storeNum) {
 	case 1:
 		storeString = "Wellington";
+		targetVec = &wellington;
 		break;
 
 	case 2:
 		storeString = "Christchurch";
+		targetVec = &christchurch;
 		break;
 
 	case 3:
 		storeString = "Auckland";
+		targetVec = &auckland;
+		break;
 	}
 
 }
@@ -275,73 +263,21 @@ static void viewInventory() {
 
 	pickStore();
 
-	switch (storeNum) {
-	case 1:
-
-		if (wellington.size() == 0) {
-			cout << "Wellington's inventory has no stock\n";
-			return;
-		}
-
-		for (int i = 0; i < wellington.size(); i++) {
-			cout << format("Item {}\n", i + 1);
-			for (int j = 0; j < wellington[i].size(); j++) {
-				if (j == 2) {
-					cout << format("{}: $", formats[j]);
-				}
-				else {
-					cout << format("{}: ", formats[j]);
-				}
-				cout << format("{}\n", wellington[i][j]);
+	for (int i = 0; i < (*targetVec).size(); i++) {
+		cout << format("Item {}\n", i + 1);
+		for (int j = 0; j < (*targetVec)[i].size(); j++) {
+			if (j == 2) {
+				cout << format("{}: $", formats[j]);
 			}
-			cout << "\n";
-		}
-		break;
-
-	case 2:
-
-		if (christchurch.size() == 0) {
-			cout << "Christchurch's inventory has no stock\n";
-			return;
-		}
-
-		for (int i = 0; i < christchurch.size(); i++) {
-			cout << format("Item {}\n", i + 1);
-			for (int j = 0; j < christchurch[i].size(); j++) {
-				if (j == 2) {
-					cout << format("{}: $", formats[j]);
-				}
-				else {
-					cout << format("{}: ", formats[j]);
-				}
-				cout << format("{}\n", christchurch[i][j]);
+			else {
+				cout << format("{}: ", formats[j]);
 			}
-			cout << "\n";
+			cout << format("{}\n", (*targetVec)[i][j]);
 		}
-		break;
-
-	case 3:
-
-		if (auckland.size() == 0) {
-			cout << "Auckland's inventory has no stock\n";
-			return;
-		}
-
-		for (int i = 0; i < auckland.size(); i++) {
-			cout << format("Item {}\n", i + 1);
-			for (int j = 0; j < auckland[i].size(); j++) {
-				if (j == 2) {
-					cout << format("{}: $", formats[j]);
-				}
-				else {
-					cout << format("{}: ", formats[j]);
-				}
-				cout << format("{}\n", auckland[i][j]);
-			}
-			cout << "\n";
-		}
-		break;
+		cout << "\n";
 	}
+
+
 }
 
 // Gets the specific item that the user wants to interact with it so it can be used easily
@@ -754,10 +690,6 @@ static void program() {
 
 // When code starts, run these functions then loop program forever
 int main() {
-
-	targetVec.push_back({ "hello", "hi", "test" });
-	cout << format("testing: {}, {}, {}\n", targetVec[0][0], targetVec[0][1], targetVec[0][2]);
-	return 0;
 
 	createFiles();
 	fileToVector();
