@@ -1,11 +1,8 @@
 
 /* Latest changes
-	- Formatted the vector printing better
-	- You can now edit name, amount and price with proper formatting
-*/
-
-/* Currently doing/next task
-	- Add and delete items as admin
+	- You can now add items to inventories
+	- Vectors now expoert to files (this still needs some work)
+	- Added extra username and password security
 */
 
 #include <iostream>
@@ -13,21 +10,24 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <iomanip>
+#include <filesystem>
 
 using namespace std;
+using namespace filesystem;
 
 vector<vector<string>>wellington = { {} };
 vector<vector<string>>christchurch = { {} };
 vector<vector<string>>auckland = { {} };
 vector<vector<string>>accounts = { {} };
 
-string username{}, password{}, formats[3] = { "name", "amount", "price" };
+string storeString{}, formats[3] = { "name", "amount", "price" };
 
-int userChoice{}, store{};
-bool loggedIn = true; // Testing purposes
-bool adminAccount = true; // Testing purposes
+int storeNum{};
+bool loggedIn = false;
+bool adminAccount = false;
 
-static int validateInput(auto& validator) {
+static int validateInput(auto& validator, int lower = -1000000000, int higher = 1000000000) {
 
 	cin >> validator;
 
@@ -36,6 +36,13 @@ static int validateInput(auto& validator) {
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		cout << "Please input a valid integer: ";
 		cin >> validator;
+	}
+
+	while (validator < lower || validator > higher) {
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << format("Please input a number between {} and {}: ", lower, higher);
+		validateInput(validator, lower, higher);
 	}
 
 	return validator;
@@ -162,37 +169,157 @@ static void fileToVector() {
 		file.close();
 	}
 }
-//test
-//check if the username and password match any of the accounts in the accounts vector, if it does return true, if not return false
-//also give the user admin access if the account is an admin account
-static bool checkLogin(string& username, string& password) {
-	for (int i = 0; i < accounts.size(); i++) {
 
-		if (accounts[i][0] == username && accounts[i][1] == password) {
-			if (accounts[i][2] == "true") {
-				adminAccount = true;
-			}
-			return true;
+/*
+Puts all the vectors into files.
+So this doesn't break, make sure your files are formatted like this:
+
+Inventory file:				Accounts files:
+	item					username
+	amount					password
+	price					isAdmin
+	\n						\n
+	item					username
+	amount					password
+	price					isAdmin
+	\n						\n
+	item					username
+	amount					password
+	price					isAdmin
+	\n						\n
+
+The \n at the end is important, either have the file blank already or format things like this
+*/
+static void vectorToFile() {
+
+	fstream file;
+
+	file.open("wellington.txt", ios::out);
+	for (int i = 0; i < wellington.size(); i++) {
+
+		for (int j = 0; j < wellington[i].size(); j++) {
+			file << format("{}\n", wellington[i][j]);
 		}
-
+		if (i != wellington.size() - 1) {
+			file << "\n";
+		}
 	}
-	return false;
+	file.close();
+
+	file.open("christchurch.txt", ios::out);
+	for (int i = 0; i < christchurch.size(); i++) {
+		for (int j = 0; j < christchurch[i].size(); j++) {
+			file << format("{}\n", christchurch[i][j]);
+		}
+		if (i != christchurch.size() - 1) {
+			file << "\n";
+		}
+	}
+	file.close();
+
+	file.open("auckland.txt", ios::out);
+	for (int i = 0; i < auckland.size(); i++) {
+		for (int j = 0; j < auckland[i].size(); j++) {
+			file << format("{}\n", auckland[i][j]);
+		}
+		if (i != auckland.size() - 1) {
+			file << "\n";
+		}
+	}
+	file.close();
+
+	file.open("accounts.txt", ios::out);
+	for (int i = 0; i < accounts.size(); i++) {
+		for (int j = 0; j < accounts[i].size(); j++) {
+			file << format("{}\n", accounts[i][j]);
+		}
+		if (i != accounts.size() - 1) {
+			file << "\n";
+		}
+	}
+	file.close();
+
 }
 
+//check if the username and password match any of the accounts in the accounts vector, if it does return true, if not return false
+//also give the user admin access if the account is an admin account
+static bool checkLogin(string username, string password, string mode = "login") {
+
+	if (mode == "login") {
+
+		for (int i = 0; i < accounts.size(); i++) {
+			if (accounts[i][0] == username && accounts[i][1] == password) {
+				if (accounts[i][2] == "true") {
+					adminAccount = true;
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+	else {
+
+		for (int i = 0; i < accounts.size(); i++) {
+			if (accounts[i][0] == username) {
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+// Handles confirming options the user has chosen E.G deleting an item
+static bool confirm(string text) {
+
+	int answer{};
+
+	cout << text;
+	cout << "\n1. Yes, 2. No: ";
+	validateInput(answer, 1, 2);
+
+	if (answer == 1) {
+		return true;
+	}
+	else {
+		return false;
+	}
+
+}
+
+// Handles choosing a store
 static void pickStore() {
 
 	cout << "1. Wellington\n2. Christchurch\n3. Auckland\n\n";
 	cout << "Please choose a store: ";
-	validateInput(store);
+	validateInput(storeNum, 1, 3);
+
+	switch (storeNum) {
+	case 1:
+		storeString = "Wellington";
+		break;
+
+	case 2:
+		storeString = "Christchurch";
+		break;
+
+	case 3:
+		storeString = "Auckland";
+	}
 
 }
 
+// Handles displaying the inventories
 static void viewInventory() {
 
 	pickStore();
 
-	switch (store) {
+	switch (storeNum) {
 	case 1:
+
+		if (wellington.size() == 0) {
+			cout << "Inventory has no stock\n";
+		}
+
 		for (int i = 0; i < wellington.size(); i++) {
 			cout << format("Item {}\n", i + 1);
 			for (int j = 0; j < wellington[i].size(); j++) {
@@ -209,6 +336,7 @@ static void viewInventory() {
 		break;
 
 	case 2:
+
 		for (int i = 0; i < christchurch.size(); i++) {
 			cout << format("Item {}\n", i + 1);
 			for (int j = 0; j < christchurch[i].size(); j++) {
@@ -225,6 +353,7 @@ static void viewInventory() {
 		break;
 
 	case 3:
+
 		for (int i = 0; i < auckland.size(); i++) {
 			cout << format("Item {}\n", i + 1);
 			for (int j = 0; j < auckland[i].size(); j++) {
@@ -242,141 +371,291 @@ static void viewInventory() {
 	}
 }
 
-static void editInventory() {
+// Gets the specific item that the user wants to interact with it so it can be used easily
+static string displaySpecificItem(string& value, int& index) {
 
-	int index{}, answer{}, newValue{};
-	string newName{}, prevItem{};
+	value = "";
 
-	viewInventory();
-
-	cout << "Pick item by ID: ";
-	validateInput(index);
-	index -= 1;
-
-	switch (store) {
+	switch (storeNum) {
 	case 1:
-		cout << format("Item {}\n", index + 1);
+		value += format("Item {}\n", index + 1);
 		for (int i = 0; i < wellington[index].size(); i++) {
 			if (i == 2) {
-				cout << format("{}: $", formats[i]);
+				value += format("{}: $", formats[i]);
 			}
 			else {
-				cout << format("{}: ", formats[i]);
+				value += format("{}: ", formats[i]);
 			}
-			cout << format("{}\n", wellington[index][i]);
+			value += format("{}\n", wellington[index][i]);
 		}
-		cout << "\n";
+		value += "\n";
 		break;
 
 	case 2:
-		cout << format("Item {}\n", index + 1);
+		value += format("Item {}\n", index + 1);
 		for (int i = 0; i < christchurch[index].size(); i++) {
 			if (i == 2) {
-				cout << format("{}: $", formats[i]);
+				value += format("{}: $", formats[i]);
 			}
 			else {
-				cout << format("{}: ", formats[i]);
+				value += format("{}: ", formats[i]);
 			}
-			cout << format("{}\n", christchurch[index][i]);
+			value += format("{}\n", christchurch[index][i]);
 		}
-		cout << "\n";
+		value += "\n";
 		break;
 
 	case 3:
-		cout << format("Item {}\n", index + 1);
+		value += format("Item {}\n", index + 1);
 		for (int i = 0; i < auckland[index].size(); i++) {
 			if (i == 2) {
-				cout << format("{}: $", formats[i]);
+				value += format("{}: $", formats[i]);
 			}
 			else {
-				cout << format("{}: ", formats[i]);
+				value += format("{}: ", formats[i]);
 			}
-			cout << format("{}\n", auckland[index][i]);
+			value += format("{}\n", auckland[index][i]);
 		}
-		cout << "\n";
+		value += "\n";
 		break;
 	}
 
-	cout << "1. Edit name\n2. Edit amount\n3. Edit price\n4. Delete item\n\n";
+	return value;
+}
+
+// Handles the actual editing part of the inventories
+static void editingStock(int& max) {
+
+	int index{}, newValue{}, answer{};
+	string newName{}, prevItem{}, displayItem{};
+
+	cout << "Pick item by ID: ";
+	validateInput(index, 1, max);
+	index -= 1;
+
+	displayItem = displaySpecificItem(displayItem, index);
+	cout << displayItem;
+
+	cout << "1. Edit name\n2. Edit amount\n3. Edit price\n\n";
 	cout << "Select an option: ";
-	validateInput(answer);
+	validateInput(answer, 1, 3);
 	answer -= 1;
 
-	switch (answer) {
-	case 0:
-	case 1:
-	case 2:
+	cout << format("Enter new {}: ", formats[answer]);
+	if (answer == 0) {
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		getline(cin, newName);
+	}
+	else {
+		validateInput(newValue);
+	}
 
-		cout << format("Enter new {}: ", formats[answer]);
+	switch (storeNum) {
+	case 1:
+		prevItem = wellington[index][answer];
 		if (answer == 0) {
-			cin.ignore(numeric_limits<streamsize>::max(), '\n');
-			getline(cin, newName);
+			wellington[index][answer] = newName;
 		}
 		else {
-			validateInput(newValue);
+			wellington[index][answer] = to_string(newValue);
 		}
+		break;
 
-		switch (store) {
+	case 2:
+		prevItem = christchurch[index][answer];
+		if (answer == 0) {
+			christchurch[index][answer] = newName;
+		}
+		else {
+			christchurch[index][answer] = to_string(newValue);
+		}
+		break;
+
+	case 3:
+		prevItem = auckland[index][answer];
+		if (answer == 0) {
+			auckland[index][answer] = newName;
+		}
+		else {
+			auckland[index][answer] = to_string(newValue);
+		}
+		break;
+	}
+
+	displayItem = displaySpecificItem(displayItem, index);
+
+	if (answer == 2) {
+		cout << format("Successfully changed item {}'s {} from ${} to ${} inside {}'s inventory\n", index + 1, formats[answer], prevItem, newValue, storeString);
+	}
+	else {
+		cout << format("Successfully changed item {}'s {} from {} ", index + 1, formats[answer], prevItem);
+		if (answer == 0) {
+			cout << format("to {} ", newName);
+		}
+		else {
+			cout << format("to {} ", newValue);
+		}
+		cout << format("inside {}'s inventory", storeString);
+	}
+	cout << format("\nDetails:\n\n{}", displayItem);
+}
+
+// Handles deleting items from the inventories
+static void deleteInventory(int& max) {
+
+	int index{};
+
+	cout << "Choose the ID of the item you want to delete: ";
+	validateInput(index, 1, max);
+	index -= 1;
+
+	if (confirm(format("WARNING: You are about to delete item {} of {}'s inventory\nDo you wish to proceed?\n", index + 1, storeString))) {
+		switch (storeNum) {
 		case 1:
-			prevItem = wellington[index][answer];
-			wellington[index][answer] = newName;
+			wellington.erase(wellington.begin() + index);
 			break;
 
 		case 2:
-			prevItem = christchurch[index][answer];
-			christchurch[index][answer] = to_string(newValue);
+			christchurch.erase(christchurch.begin() + index);
 			break;
 
 		case 3:
-			prevItem = auckland[index][answer];
-			auckland[index][answer] = to_string(newValue);
+			auckland.erase(auckland.begin() + index);
 			break;
 		}
 
-		if (answer == 2) {
-			cout << format("Successfully changed item {}'s {} from ${}  to ${}\n", index + 1, formats[answer], prevItem, newValue);
-		}
-		else {
-			cout << format("Successfully changed item {}'s {} from {} ", index + 1, formats[answer], prevItem);
-			if (answer == 0) {
-				cout << format("to {}\n", newName);
-			}
-			else {
-				cout << format("to {}\n", newValue);
-			}
-		}
+		cout << format("Successfully deleted item {} of {}'s inventory\n", index + 1, storeString);
+	}
+	else {
+		cout << "Deletion cancelled\n";
+	}
+
+
+
+}
+
+// Handles adding an item to an inventory
+static void addItem() {
+
+	string name{};
+	int amount{};
+	double price{};
+
+	cout << "Enter a name: ";
+	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	getline(cin, name);
+
+	cout << "Enter an amount: ";
+	validateInput(amount, 1);
+
+	cout << "Enter a price: ";
+	validateInput(price, 1);
+
+	switch (storeNum) {
+	case 1:
+		wellington.push_back({ name, to_string(amount), format("{:.2f}", (price)) });
+		break;
+
+	case 2:
+		christchurch.push_back({ name, to_string(amount), format("{:.2f}", (price)) });
 		break;
 
 	case 3:
+		auckland.push_back({ name, to_string(amount), format("{:.2f}", (price)) });
+		break;
+	}
+
+	cout << format("Successfully added {} to {}'s inventory\n", name, storeString);
+
+}
+
+// Handles all the selecting stuff in the "edit inventory" menu
+static void editInventory() {
+
+	int max{}, answer{};
+
+	viewInventory();
+
+	cout << "1. Add item\n2. Edit item\n3. Delete item\n\n";
+	cout << "Please choose an option: ";
+	validateInput(answer, 1, 3);
+
+	switch (storeNum) {
+	case 1:
+		max = wellington.size();
 		break;
 
+	case 2:
+		max = christchurch.size();
+		break;
+
+	case 3:
+		max = auckland.size();
+		break;
+	}
+
+	switch (answer) {
+	case 1:
+		addItem();
+		break;
+
+	case 2:
+		editingStock(max);
+		break;
+
+	case 3:
+		deleteInventory(max);
 	}
 }
 
+// Checks if password uses best password practices
+static string checkPassword(string& password) {
 
+	cin >> password;
 
-int main() {
-
-	createFiles();
-	if (wellington.size() == 1) {
-		fileToVector();
+	while (password.length() < 12) {
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "Error: password must be over 12 characters. Try again: ";
+		checkPassword(password);
+	}
+	while (password.find_first_of("0123456789") == string::npos) {
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "Error: password must contain at least one number. Try again: ";
+		checkPassword(password);
+	}
+	while (password.find_first_of("`~!@#$%^&*()_-=+[]{}\\|;:'\"<,.>/?") == string::npos) {
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "Error: password must contain at least one special character. Try again: ";
+		checkPassword(password);
 	}
 
+	return password;
+
+}
+
+// The actual program, this needed to be in its own function so createFiles and fileToVector would only run once
+static void program() {
+
 	fstream file;
+
+	int userChoice{};
+	string username{}, password{};
+
 	while (!loggedIn) {
 		//log in or sign up
 		cout << "\n\n===================Inventory Management System===================\n\n";
 		cout << "1. Log in\n2. Sign up\n3. Exit\n\nSelect an option: ";
-		validateInput(userChoice);
+		validateInput(userChoice, 1, 3);
 
 		switch (userChoice) {
 		case 1:
-			cout << "Username: ";
+			cout << "Please enter your username: ";
 			cin >> username;
-			cout << "\n";
-			cout << "Password: ";
+			cout << "Please enter your password: ";
 			cin >> password;
-			cout << "\n";
 
 			if (checkLogin(username, password)) {
 				cout << "Login successful!\n";
@@ -390,32 +669,49 @@ int main() {
 			break;
 			//add new account to list of accounts and export to text file
 		case 2:
-			cout << "Username: ";
+
+			cout << "Please choose a username: ";
 			cin >> username;
-			cout << "Password: ";
-			cin >> password;
+
+			if (username.length() < 5) {
+				cout << "Error: username must be over 5 characters";
+				continue;
+			}
+
+			if (checkLogin(username, password, "create")) {
+				cout << "Error: username already exists. Please pick a different one";
+				continue;
+			}
+
+			cout << "Please enter a password (Password must be over 12 characters,\ncontain at least one number, and one special character): ";
+			checkPassword(password);
+
 			accounts.push_back({ username, password, "false" });
+
 			file.open("accounts.txt", ios::app);
-			file << format("{}\n{}\n{}\n\n", username, password, "false");
+			file << format("\n{}\n{}\n{}\n", username, password, "false");
 			file.close();
+
+			cout << "Successfully created account!";
 			break;
 
 		case 3:
 			exit(0);
 
-		default:
-			cout << "Invalid option. Please try again.\n";
-			break;
-
 		}
 	}
 
 	while (loggedIn) {
+
+		vectorToFile();
+
+		int userChoice{};
+
 		cout << "===================Inventory Management System===================\n\n";
 		if (adminAccount) {
 			cout << "1. View Inventory\n2. Edit Inventory\n3. Edit Employees\n4. Edit Roster\n5. Logout\n6. Exit";
 			cout << "\n\nSelect an option: ";
-			validateInput(userChoice);
+			validateInput(userChoice, 1, 6);
 			switch (userChoice) {
 
 			case 1:
@@ -444,60 +740,42 @@ int main() {
 				exit(0);
 				break;
 
-			default:
-				cout << "Invalid option. Please try again.\n";
-				break;
 			}
 		}
 		else {
+
 			cout << "1. View inventory\n2. Order product\n3. Logout\n4. Exit\n\n";
+			cout << "Select an option: ";
+			validateInput(userChoice, 1, 4);
+
+			switch (userChoice) {
+			case 1:
+				break;
+
+			case 2:
+				break;
+
+			case 3:
+				loggedIn = false;
+				break;
+
+			case 4:
+				exit(0);
+			}
 		}
 
-		main();
+		program();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		//	for (const auto& nest : wellington) {
-		//		for (const auto& item : nest) {
-		//			cout << item << " ";
-		//		}
-		//		cout << "\n";
-		//	}
-		//	cout << "\n";
-
-		//	for (const auto& nest : christchurch) {
-		//		for (const auto& item : nest) {
-		//			cout << item << " ";
-		//		}
-		//		cout << "\n";
-		//	}
-		//	cout << "\n";
-
-		//	for (const auto& nest : auckland) {
-		//		for (const auto& item : nest) {
-		//			cout << item << " ";
-		//		}
-		//		cout << "\n";
-		//	}
-		//	cout << "\n";
 	}
+
+}
+
+// When code starts, run these functions then loop program forever
+int main() {
+
+	createFiles();
+	fileToVector();
+
+	program();
+
 }
