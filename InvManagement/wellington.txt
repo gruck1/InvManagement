@@ -1,11 +1,4 @@
-apple
-50
-10
+shlooby
+5
+20
 
-banana
-15
-8
-
-orange
-12
-30

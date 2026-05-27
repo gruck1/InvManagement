@@ -1,7 +1,8 @@
 
 /* Latest changes
+	- Improved file functionality
+	- Added dynamic file names
 	- You can now add items to inventories
-	- Vectors now expoert to files (this still needs some work)
 	- Added extra username and password security
 */
 
@@ -16,12 +17,12 @@
 using namespace std;
 using namespace filesystem;
 
-vector<vector<string>>wellington = { {} };
-vector<vector<string>>christchurch = { {} };
-vector<vector<string>>auckland = { {} };
-vector<vector<string>>accounts = { {} };
+vector<vector<string>>wellington = {};
+vector<vector<string>>christchurch = {};
+vector<vector<string>>auckland = {};
+vector<vector<string>>accounts = {};
 
-string storeString{}, formats[3] = { "name", "amount", "price" };
+string storeString{}, fileName, formats[3] = { "name", "amount", "price" };
 
 int storeNum{};
 bool loggedIn = false;
@@ -49,13 +50,43 @@ static int validateInput(auto& validator, int lower = -1000000000, int higher = 
 
 }
 
+/*
+Changes fileName to fit txt format so dynamic names can be used.
+Example:
+	fstream file("wellington.txt"); this is hard coded
+
+	fstream file(fileName); this uses dynamic file names
+*/
+static void getFileName(int index) {
+
+	switch (index) {
+	case 0:
+		fileName = "wellington.txt";
+		break;
+
+	case 1:
+		fileName = "christchurch.txt";
+		break;
+
+	case 2:
+		fileName = "auckland.txt";
+		break;
+
+	case 3:
+		fileName = "accounts.txt";
+		break;
+	}
+
+}
+
 // If no files exist, create them
 static void createFiles() {
 
-	fstream file1("wellington.txt", ios::app);
-	fstream file2("christchurch.txt", ios::app);
-	fstream file3("auckland.txt", ios::app);
-	fstream file4("accounts.txt", ios::app);
+	for (int i = 0; i < 4; i++) {
+		getFileName(i);
+		fstream file(fileName, ios::app);
+		file.close();
+	}
 
 }
 
@@ -65,188 +96,110 @@ static void fileToVector() {
 	fstream file;
 	int index{};
 
-	/*
-	The index opens the correct file and goes to the next number once everything is imported successfully.
-	For example: index starts at 0 so wellington text file is edited. When everything is successfully imported into the wellington vector,
-	the wellington text file is closed and index goes to the next number to open the next text file
-	*/
 	for (index = 0; index < 4; index++) {
-		switch (index) {
-		case 0:
-			file.open("wellington.txt", ios::in);
-			break;
 
-		case 1:
-			file.open("christchurch.txt", ios::in);
-			break;
+		getFileName(index);
 
-		case 2:
-			file.open("auckland.txt", ios::in);
-			break;
-
-		case 3:
-			file.open("accounts.txt", ios::in);
-			if (file.is_open()) {
-				//cout << "shlooby\n";
-			}
-			break;
-		}
+		file.open(fileName, ios::in);
 
 		string line{};
 		int i{};
 
-		/*
-		i starts at 0, so the first nest will be edited. Once the first nest is full, create empty nest (vector.push_back({}) and change i by 1 so
-		it can start editing the next nest without errors.
-		If the new nest doesn't get created, it breaks because it can't access i.
-		Example:
-			vector = { {a, b, c } };
-			i = 0;
+		if (file_size(fileName) > 0) {
+			int maxLine{}, currentLine{};
+			
+			while (getline(file, line)) {
+				maxLine++;
+			}
+			maxLine -= 1;
 
-			vector[i].push_back(d); the vector now looks like { {a, b, c, d} }
-
-			change i by 1
-			vector[i].push_back(e); vector = { {a, b, c, d}, i wants to be here };
-
-		i is in the next nest but it doesn't exist so the code fails. With an empty nest created, this error won't happen.
-		Example:
-			vector = { {a, b, c } };
-			i = 0;
-
-			vector[i].push_back(d); the vector now looks like { {a, b, c, d} }
-
-			vector.push_back({}); creating empty nest - vector now looks like { {a, b, c, d}, {} }
-
-			change i by 1
-			vector[i].push_back(e); vector = { {a, b, c, d}, {e} };
-
-		Now it works because there is a new nest.
-		*/
-		while (getline(file, line)) {
 			switch (index) {
 			case 0:
-				if (line == "") {
-					wellington.push_back({});
-					i++;
-				}
-				else {
-					wellington[i].push_back(line);
-				}
+				wellington.push_back({});
 				break;
 
 			case 1:
-				if (line == "") {
-					christchurch.push_back({});
-					i++;
-				}
-				else {
-					christchurch[i].push_back(line);
-				}
+				christchurch.push_back({});
 				break;
 
 			case 2:
-				if (line == "") {
-					auckland.push_back({});
-					i++;
-				}
-				else {
-					auckland[i].push_back(line);
-				}
+				auckland.push_back({});
 				break;
 
 			case 3:
-				if (line == "") {
-					accounts.push_back({});
-					i++;
-				}
-				else {
-					accounts[i].push_back(line);
-				}
-				break;
+				accounts.push_back({});
+
 			}
 
+			file.clear();
+			file.seekg(0);
+			while (getline(file, line)) {
+				currentLine++;
+				cout << currentLine << ", ";
+				cout << maxLine << endl;
+				if (currentLine == maxLine) {
+					break;
+				}
+
+				switch (index) {
+				case 0:
+					if (line == "") {
+						wellington.push_back({});
+						i++;
+					}
+					else {
+						wellington[i].push_back(line);
+					}
+					break;
+
+				case 1:
+					if (line == "") {
+						christchurch.push_back({});
+						i++;
+					}
+					else {
+						christchurch[i].push_back(line);
+					}
+					break;
+
+				case 2:
+					if (line == "") {
+						auckland.push_back({});
+						i++;
+					}
+					else {
+						auckland[i].push_back(line);
+					}
+					break;
+
+				case 3:
+					if (line == "") {
+						accounts.push_back({});
+						i++;
+					}
+					else {
+						accounts[i].push_back(line);
+					}
+					break;
+				}
+
+			}
 		}
 		file.close();
 	}
 }
 
-/*
-Puts all the vectors into files.
-So this doesn't break, make sure your files are formatted like this:
-
-Inventory file:				Accounts files:
-	item					username
-	amount					password
-	price					isAdmin
-	\n						\n
-	item					username
-	amount					password
-	price					isAdmin
-	\n						\n
-	item					username
-	amount					password
-	price					isAdmin
-	\n						\n
-
-The \n at the end is important, either have the file blank already or format things like this
-*/
-static void vectorToFile() {
-
-	fstream file;
-
-	file.open("wellington.txt", ios::out);
-	for (int i = 0; i < wellington.size(); i++) {
-
-		for (int j = 0; j < wellington[i].size(); j++) {
-			file << format("{}\n", wellington[i][j]);
-		}
-		if (i != wellington.size() - 1) {
-			file << "\n";
-		}
-	}
-	file.close();
-
-	file.open("christchurch.txt", ios::out);
-	for (int i = 0; i < christchurch.size(); i++) {
-		for (int j = 0; j < christchurch[i].size(); j++) {
-			file << format("{}\n", christchurch[i][j]);
-		}
-		if (i != christchurch.size() - 1) {
-			file << "\n";
-		}
-	}
-	file.close();
-
-	file.open("auckland.txt", ios::out);
-	for (int i = 0; i < auckland.size(); i++) {
-		for (int j = 0; j < auckland[i].size(); j++) {
-			file << format("{}\n", auckland[i][j]);
-		}
-		if (i != auckland.size() - 1) {
-			file << "\n";
-		}
-	}
-	file.close();
-
-	file.open("accounts.txt", ios::out);
-	for (int i = 0; i < accounts.size(); i++) {
-		for (int j = 0; j < accounts[i].size(); j++) {
-			file << format("{}\n", accounts[i][j]);
-		}
-		if (i != accounts.size() - 1) {
-			file << "\n";
-		}
-	}
-	file.close();
-
-}
-
-//check if the username and password match any of the accounts in the accounts vector, if it does return true, if not return false
+//check if the username and password match any of the accounts in the accounts vector. if it does, return true, if not return, false
 //also give the user admin access if the account is an admin account
 static bool checkLogin(string username, string password, string mode = "login") {
 
-	if (mode == "login") {
+	// If the account vector is empty then no accounts have been made so there's obviously no way anything can match
+	if (accounts.size() == 0) {
+		return false;
+	}
 
+	// If the user is logging in, make sure the username and password are correct. If admin account, apply admin
+	if (mode == "login") {
 		for (int i = 0; i < accounts.size(); i++) {
 			if (accounts[i][0] == username && accounts[i][1] == password) {
 				if (accounts[i][2] == "true") {
@@ -257,7 +210,9 @@ static bool checkLogin(string username, string password, string mode = "login") 
 		}
 		return false;
 	}
-	else {
+
+	// If user is creating account, make sure the username doesn't already exist
+	else if (mode == "create") {
 
 		for (int i = 0; i < accounts.size(); i++) {
 			if (accounts[i][0] == username) {
@@ -317,7 +272,8 @@ static void viewInventory() {
 	case 1:
 
 		if (wellington.size() == 0) {
-			cout << "Inventory has no stock\n";
+			cout << "Wellington's inventory has no stock\n";
+			return;
 		}
 
 		for (int i = 0; i < wellington.size(); i++) {
@@ -337,6 +293,11 @@ static void viewInventory() {
 
 	case 2:
 
+		if (christchurch.size() == 0) {
+			cout << "Christchurch's inventory has no stock\n";
+			return;
+		}
+
 		for (int i = 0; i < christchurch.size(); i++) {
 			cout << format("Item {}\n", i + 1);
 			for (int j = 0; j < christchurch[i].size(); j++) {
@@ -353,6 +314,11 @@ static void viewInventory() {
 		break;
 
 	case 3:
+
+		if (auckland.size() == 0) {
+			cout << "Auckland's inventory has no stock\n";
+			return;
+		}
 
 		for (int i = 0; i < auckland.size(); i++) {
 			cout << format("Item {}\n", i + 1);
@@ -540,6 +506,7 @@ static void addItem() {
 	string name{};
 	int amount{};
 	double price{};
+	fstream file;
 
 	cout << "Enter a name: ";
 	cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -554,14 +521,23 @@ static void addItem() {
 	switch (storeNum) {
 	case 1:
 		wellington.push_back({ name, to_string(amount), format("{:.2f}", (price)) });
+
+		file.open("wellington.txt", ios::app);
+		file << format("{}\n{}\n{}\n\n", name, amount, price);
 		break;
 
 	case 2:
 		christchurch.push_back({ name, to_string(amount), format("{:.2f}", (price)) });
+
+		file.open("christchurch.txt", ios::app);
+		file << format("{}\n{}\n{}\n\n", name, amount, price);
 		break;
 
 	case 3:
 		auckland.push_back({ name, to_string(amount), format("{:.2f}", (price)) });
+
+		file.open("auckland.txt", ios::app);
+		file << format("{}\n{}\n{}\n\n", name, amount, price);
 		break;
 	}
 
@@ -689,7 +665,7 @@ static void program() {
 			accounts.push_back({ username, password, "false" });
 
 			file.open("accounts.txt", ios::app);
-			file << format("\n{}\n{}\n{}\n", username, password, "false");
+			file << format("{}\n{}\n{}\n\n", username, password, "false");
 			file.close();
 
 			cout << "Successfully created account!";
@@ -702,8 +678,6 @@ static void program() {
 	}
 
 	while (loggedIn) {
-
-		vectorToFile();
 
 		int userChoice{};
 
@@ -750,6 +724,7 @@ static void program() {
 
 			switch (userChoice) {
 			case 1:
+				viewInventory();
 				break;
 
 			case 2:
