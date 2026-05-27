@@ -22,7 +22,7 @@ vector<vector<string>>christchurch = {};
 vector<vector<string>>auckland = {};
 vector<vector<string>>accounts = {};
 
-vector<vector<string>>* targetVec;
+vector<vector<string>>& targetVec = wellington;
 
 string storeString{}, fileName, formats[3] = { "name", "amount", "price" };
 
@@ -65,22 +65,22 @@ static void dynamicNaming(int index) {
 	switch (index) {
 	case 0:
 		fileName = "wellington.txt";
-		targetVec = &wellington;
+		targetVec = wellington;
 		break;
 
 	case 1:
 		fileName = "christchurch.txt";
-		targetVec = &christchurch;
+		targetVec = christchurch;
 		break;
 
 	case 2:
 		fileName = "auckland.txt";
-		targetVec = &auckland;
+		targetVec = auckland;
 		break;
 
 	case 3:
 		fileName = "accounts.txt";
-		targetVec = &accounts;
+		targetVec = accounts;
 		break;
 	}
 
@@ -755,8 +755,7 @@ static void program() {
 // When code starts, run these functions then loop program forever
 int main() {
 
-	targetVec = &wellington;
-	targetVec->push_back({ "hello", "hi", "test" });
+	targetVec.push_back({ "hello", "hi", "test" });
 	cout << format("testing: {}, {}, {}\n", targetVec[0][0], targetVec[0][1], targetVec[0][2]);
 	return 0;
 
