@@ -122,24 +122,30 @@ static void fileToVector() {
 
 			targetVec->push_back({});
 
-			case 1:
-				christchurch.push_back({});
-				break;
+			//switch (index) {
+			//case 0:
+			//	wellington.push_back({});
+			//	break;
 
-			case 2:
-				auckland.push_back({});
-				break;
+			//case 1:
+			//	christchurch.push_back({});
+			//	break;
 
-			case 3:
-				accounts.push_back({});
+			//case 2:
+			//	auckland.push_back({});
+			//	break;
 
-			}
+			//case 3:
+			//	accounts.push_back({});
+
+			//}
 
 			file.clear();
 			file.seekg(0);
 			while (getline(file, line)) {
 				currentLine++;
-
+				cout << currentLine << ", ";
+				cout << maxLine << endl;
 				if (currentLine == maxLine) {
 					break;
 				}
@@ -153,26 +159,47 @@ static void fileToVector() {
 					(*targetVec)[i].push_back(line);
 				}
 
-				case 2:
-					if (line == "") {
-						auckland.push_back({});
-						i++;
-					}
-					else {
-						auckland[i].push_back(line);
-					}
-					break;
+				//switch (index) {
+				//case 0:
+				//	if (line == "") {
+				//		wellington.push_back({});
+				//		i++;
+				//	}
+				//	else {
+				//		wellington[i].push_back(line);
+				//	}
+				//	break;
 
-				case 3:
-					if (line == "") {
-						accounts.push_back({});
-						i++;
-					}
-					else {
-						accounts[i].push_back(line);
-					}
-					break;
-				}
+				//case 1:
+				//	if (line == "") {
+				//		christchurch.push_back({});
+				//		i++;
+				//	}
+				//	else {
+				//		christchurch[i].push_back(line);
+				//	}
+				//	break;
+
+				//case 2:
+				//	if (line == "") {
+				//		auckland.push_back({});
+				//		i++;
+				//	}
+				//	else {
+				//		auckland[i].push_back(line);
+				//	}
+				//	break;
+
+				//case 3:
+				//	if (line == "") {
+				//		accounts.push_back({});
+				//		i++;
+				//	}
+				//	else {
+				//		accounts[i].push_back(line);
+				//	}
+				//	break;
+				//}
 
 			}
 		}
@@ -602,9 +629,11 @@ static void program() {
 				continue;
 			}
 
+			//check password security
 			cout << "Please enter a password (Password must be over 12 characters,\ncontain at least one number, and one special character): ";
 			checkPassword(password);
 
+			//save username and password without admin access
 			accounts.push_back({ username, password, "false" });
 
 			file.open("accounts.txt", ios::app);
