@@ -122,24 +122,6 @@ static void fileToVector() {
 
 			targetVec->push_back({});
 
-			//switch (index) {
-			//case 0:
-			//	wellington.push_back({});
-			//	break;
-
-			//case 1:
-			//	christchurch.push_back({});
-			//	break;
-
-			//case 2:
-			//	auckland.push_back({});
-			//	break;
-
-			//case 3:
-			//	accounts.push_back({});
-
-			//}
-
 			file.clear();
 			file.seekg(0);
 			while (getline(file, line)) {
@@ -158,48 +140,6 @@ static void fileToVector() {
 				else {
 					(*targetVec)[i].push_back(line);
 				}
-
-				//switch (index) {
-				//case 0:
-				//	if (line == "") {
-				//		wellington.push_back({});
-				//		i++;
-				//	}
-				//	else {
-				//		wellington[i].push_back(line);
-				//	}
-				//	break;
-
-				//case 1:
-				//	if (line == "") {
-				//		christchurch.push_back({});
-				//		i++;
-				//	}
-				//	else {
-				//		christchurch[i].push_back(line);
-				//	}
-				//	break;
-
-				//case 2:
-				//	if (line == "") {
-				//		auckland.push_back({});
-				//		i++;
-				//	}
-				//	else {
-				//		auckland[i].push_back(line);
-				//	}
-				//	break;
-
-				//case 3:
-				//	if (line == "") {
-				//		accounts.push_back({});
-				//		i++;
-				//	}
-				//	else {
-				//		accounts[i].push_back(line);
-				//	}
-				//	break;
-				//}
 
 			}
 		}
