@@ -132,8 +132,6 @@ static void fileToVector() {
 			file.seekg(0);
 			while (getline(file, line)) {
 				currentLine++;
-				cout << currentLine << ", ";
-				cout << maxLine << endl;
 				if (currentLine == maxLine) {
 					break;
 				}

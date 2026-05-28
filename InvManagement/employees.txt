@@ -14,3 +14,7 @@ man
 4.00
 dude
 
+oranges
+30
+20
+
