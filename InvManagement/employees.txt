@@ -1,28 +1,20 @@
 William
-1000
+1000.00
 fah
 
 test
-1
+1.00
 tester
 
 Daniel
-1
+1.00
 shlooby
 
 man
 4.00
 dude
 
-oranges
-30
-20
-
-shlooby
-30
-15
-
-dompus
-999
-9
+noice
+30.00
+he chillin
 

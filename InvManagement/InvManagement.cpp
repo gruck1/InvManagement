@@ -426,9 +426,9 @@ static void editInventory() {
 
 	viewInventory();
 
-	cout << "1. Add item\n2. Edit item\n3. Delete item\n\n";
+	cout << "1. Add item\n2. Edit item\n3. Delete item\n4. Back\n\n";
 	cout << "Please choose an option: ";
-	validateInput(answer, 1, 3);
+	validateInput(answer, 1, 4);
 
 	max = (*targetVec).size();
 
@@ -443,19 +443,15 @@ static void editInventory() {
 
 	case 3:
 		deleteInventory(max);
+		break;
+
+	case 4:
+		return;
 	}
 }
 
-//employee management
-static void editEmployees() {
-	
-	int answer{}, employeeID{}, newValue{}, index{}, max = employees.size();
-	double pay{};
-	string name{}, role{}, newName{}, prevItem{}, displayItem{};;
-	fstream file;
-	cout << "\n\n";
-
-	//display all employees 
+// Handles displaying employees
+static void viewEmployeeDetails() {
 
 	for (int i = 0; i < employees.size(); i++) {
 		cout << format("Employee {}\n", i + 1);
@@ -471,29 +467,50 @@ static void editEmployees() {
 		cout << "\n";
 	}
 
-	cout << "1. Add employee\n2. Edit employee\n3. Delete employee\n\n";
+}
+
+// Handles adding new employees
+static void addEmployee() {
+
+	string name{}, role{};
+	double pay{};
+
+	fstream file;
+
+	cout << "Enter employee name: ";
+	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	getline(cin, name);
+
+	cout << "Enter pay per hour: ";
+	validateInput(pay, 1);
+
+	cout << "Enter employee role: ";
+	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	getline(cin, role);
+
+	employees.push_back({ name, format("{:.2f}", pay), role });
+
+	file.open("employees.txt", ios::app);
+	file << format("{}\n{}\n{}\n\n", name, format("{:.2f}", (pay)), role);
+
+	cout << format("Successfully added {} as a new employee\n", name);
+
+}
+
+//employee management
+static void editEmployees() {
+	
+	int answer{}, employeeID{}, newValue{}, index{}, max = employees.size();
+
+	viewEmployeeDetails();
+
+	cout << "1. Add employee\n2. Edit employee\n3. Delete employee\n4. Back\n\n";
 	cout << "Please choose an option: ";
 	validateInput(answer, 1, 3);
 
 	switch (answer) {
 	case 1:
-
-		//add employee to employees vector, then export to text file
-		cout << "Enter employee name: ";
-		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		getline(cin, name);
-
-		cout << "Enter pay per hour: ";
-		validateInput(pay, 1);
-
-		cout << "Enter employee role: ";
-		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		getline(cin, role);
-
-		employees.push_back({ name, to_string(pay), role});
-
-		file.open("employees.txt", ios::app);
-		file << format("{}\n{}\n{}\n\n", name, format("{:.2f}", (pay)), role);
+		addEmployee();
 		break;
 
 	case 2:
@@ -507,9 +524,10 @@ static void editEmployees() {
 	case 3:
 		
 		break;
+
+	case 4:
+		return;
 	}
-
-
 }
 
 
@@ -615,35 +633,31 @@ static void program() {
 		cout << "===================Inventory Management System===================\n\n";
 		if (adminAccount) {
 			cout << "Logged in as admin\n\n";
-			cout << "1. View Inventory\n2. Edit Stock\n3. Edit Employees\n4. Edit Roster\n5. Logout\n6. Exit";
+			cout << "1. View and Edit Inventory\n2. View and Edit Employees\n3. Edit Roster\n4. Logout\n5. Exit";
 			cout << "\n\nSelect an option: ";
 			validateInput(userChoice, 1, 6);
 			switch (userChoice) {
 
 			case 1:
-				viewInventory();
-				break;
-
-
-			case 2:
+				// View and edit all inventories
 				editInventory();
 				break;
 
-			case 3:
-				// add and delete employees from the accounts vector, then export the vector to the text file
+			case 2:
+				// add and delete employees from the account's vector, then export the vector to the text file
 				editEmployees(); 
 				break;
 
-			case 4:
+			case 3:
 				cout << "Edit roster"; // add and delete shifts from the roster vector, then export the vector to the text file
 				break;
 
-			case 5:
+			case 4:
 				loggedIn = false;
 				adminAccount = false;
 				break;
 
-			case 6:
+			case 5:
 				exit(0);
 				break;
 
