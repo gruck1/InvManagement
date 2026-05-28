@@ -265,12 +265,9 @@ static string displaySpecificItem(string& value, int& index) {
 	}
 	value += "\n";
 
-
-
-
 	return value;
 }
-//code is 
+
 // Handles the actual editing part of the inventories
 static void editingStock(int& max) {
 
@@ -369,28 +366,11 @@ static void deleteInventory(int& max) {
 	if (confirm(format("WARNING: You are about to delete item {} of {}'s inventory\nDo you wish to proceed?\n", index + 1, storeString))) {
 		(*targetVec).erase((*targetVec).begin() + index);
 
-		//switch (storeNum) {
-		//case 1:
-		//	wellington.erase(wellington.begin() + index);
-		//	break;
-
-		//case 2:
-		//	christchurch.erase(christchurch.begin() + index);
-		//	break;
-
-		//case 3:
-		//	auckland.erase(auckland.begin() + index);
-		//	break;
-		//}
-
 		cout << format("Successfully deleted item {} of {}'s inventory\n", index + 1, storeString);
 	}
 	else {
 		cout << "Deletion cancelled\n";
 	}
-
-
-
 }
 
 // Handles adding an item to an inventory
@@ -399,7 +379,6 @@ static void addItem() {
 	string name{};
 	int amount{};
 	double price{};
-	fstream file;
 
 	cout << "Enter a name: ";
 	cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -412,7 +391,7 @@ static void addItem() {
 	validateInput(price, 1);
 
 	(*targetVec).push_back({name, to_string(amount), format("{:.2f}", (price))});
-	file.open(fileName, ios::app);
+	fstream file(fileName, ios::app);
 	file << format("{}\n{}\n{}\n\n", name, amount, price);
 
 	cout << format("Successfully added {} to {}'s inventory\n", name, storeString);
