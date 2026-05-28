@@ -18,3 +18,11 @@ oranges
 30
 20
 
+shlooby
+30
+15
+
+dompus
+999
+9
+
