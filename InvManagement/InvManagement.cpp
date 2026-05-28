@@ -17,18 +17,20 @@
 using namespace std;
 using namespace filesystem;
 
+int vectorCount = 5;
 vector<vector<string>>wellington = {};
 vector<vector<string>>christchurch = {};
 vector<vector<string>>auckland = {};
 vector<vector<string>>accounts = {};
+vector<vector<string>>employees = {};
 
 vector<vector<string>>* targetVec = &wellington;
 
-string storeString{}, fileName, formats[3] = { "name", "amount", "price" };
+string storeString{}, fileName, formats[3] = { "name", "amount", "price" }, employeeFormats[3] = { "name", "pay", "role" };
 
 int storeNum{};
-bool loggedIn = false;
-bool adminAccount = false;
+bool loggedIn = true;
+bool adminAccount = true;
 
 // Handles invalid input and ranges
 static int validateInput(auto& validator, int lower = -1000000000, int higher = 1000000000) {
@@ -82,14 +84,18 @@ static void dynamicNaming(int index) {
 		fileName = "accounts.txt";
 		targetVec = &accounts;
 		break;
-	}
 
+	case 4:
+		fileName = "employees.txt";
+		targetVec = &employees;
+		break;
+	}
 }
 
 // If no files exist, create them
 static void createFiles() {
 
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < vectorCount; i++) {
 		dynamicNaming(i);
 		fstream file(fileName, ios::app);
 		file.close();
@@ -103,7 +109,7 @@ static void fileToVector() {
 	fstream file;
 	int index{};
 
-	for (index = 0; index < 4; index++) {
+	for (index = 0; index < vectorCount; index++) {
 
 		dynamicNaming(index);
 
@@ -252,53 +258,24 @@ static string displaySpecificItem(string& value, int& index) {
 
 	value = "";
 
-	switch (storeNum) {
-	case 1:
-		value += format("Item {}\n", index + 1);
-		for (int i = 0; i < wellington[index].size(); i++) {
-			if (i == 2) {
-				value += format("{}: $", formats[i]);
-			}
-			else {
-				value += format("{}: ", formats[i]);
-			}
-			value += format("{}\n", wellington[index][i]);
+	value += format("Item {}\n", index + 1);
+	for (int i = 0; i < (*targetVec)[index].size(); i++) {
+		if (i == 2) {
+			value += format("{}: $", formats[i]);
 		}
-		value += "\n";
-		break;
-
-	case 2:
-		value += format("Item {}\n", index + 1);
-		for (int i = 0; i < christchurch[index].size(); i++) {
-			if (i == 2) {
-				value += format("{}: $", formats[i]);
-			}
-			else {
-				value += format("{}: ", formats[i]);
-			}
-			value += format("{}\n", christchurch[index][i]);
+		else {
+			value += format("{}: ", formats[i]);
 		}
-		value += "\n";
-		break;
-
-	case 3:
-		value += format("Item {}\n", index + 1);
-		for (int i = 0; i < auckland[index].size(); i++) {
-			if (i == 2) {
-				value += format("{}: $", formats[i]);
-			}
-			else {
-				value += format("{}: ", formats[i]);
-			}
-			value += format("{}\n", auckland[index][i]);
-		}
-		value += "\n";
-		break;
+		value += format("{}\n", (*targetVec)[index][i]);
 	}
+	value += "\n";
+
+
+
 
 	return value;
 }
-
+//code is 
 // Handles the actual editing part of the inventories
 static void editingStock(int& max) {
 
@@ -326,37 +303,46 @@ static void editingStock(int& max) {
 		validateInput(newValue);
 	}
 
-	switch (storeNum) {
-	case 1:
-		prevItem = wellington[index][answer];
-		if (answer == 0) {
-			wellington[index][answer] = newName;
-		}
-		else {
-			wellington[index][answer] = to_string(newValue);
-		}
-		break;
 
-	case 2:
-		prevItem = christchurch[index][answer];
-		if (answer == 0) {
-			christchurch[index][answer] = newName;
-		}
-		else {
-			christchurch[index][answer] = to_string(newValue);
-		}
-		break;
-
-	case 3:
-		prevItem = auckland[index][answer];
-		if (answer == 0) {
-			auckland[index][answer] = newName;
-		}
-		else {
-			auckland[index][answer] = to_string(newValue);
-		}
-		break;
+	prevItem = (*targetVec)[index][answer];
+	if (answer == 0) {
+		(*targetVec)[index][answer] = newName;
 	}
+	else {
+		(*targetVec)[index][answer] = to_string(newValue);
+	}
+
+	//switch (storeNum) {
+	//case 1:
+	//	prevItem = wellington[index][answer];
+	//	if (answer == 0) {
+	//		wellington[index][answer] = newName;
+	//	}
+	//	else {
+	//		wellington[index][answer] = to_string(newValue);
+	//	}
+	//	break;
+
+	//case 2:
+	//	prevItem = christchurch[index][answer];
+	//	if (answer == 0) {
+	//		christchurch[index][answer] = newName;
+	//	}
+	//	else {
+	//		christchurch[index][answer] = to_string(newValue);
+	//	}
+	//	break;
+
+	//case 3:
+	//	prevItem = auckland[index][answer];
+	//	if (answer == 0) {
+	//		auckland[index][answer] = newName;
+	//	}
+	//	else {
+	//		auckland[index][answer] = to_string(newValue);
+	//	}
+	//	break;
+	//}
 
 	displayItem = displaySpecificItem(displayItem, index);
 
@@ -386,19 +372,21 @@ static void deleteInventory(int& max) {
 	index -= 1;
 
 	if (confirm(format("WARNING: You are about to delete item {} of {}'s inventory\nDo you wish to proceed?\n", index + 1, storeString))) {
-		switch (storeNum) {
-		case 1:
-			wellington.erase(wellington.begin() + index);
-			break;
+		(*targetVec).erase((*targetVec).begin() + index);
 
-		case 2:
-			christchurch.erase(christchurch.begin() + index);
-			break;
+		//switch (storeNum) {
+		//case 1:
+		//	wellington.erase(wellington.begin() + index);
+		//	break;
 
-		case 3:
-			auckland.erase(auckland.begin() + index);
-			break;
-		}
+		//case 2:
+		//	christchurch.erase(christchurch.begin() + index);
+		//	break;
+
+		//case 3:
+		//	auckland.erase(auckland.begin() + index);
+		//	break;
+		//}
 
 		cout << format("Successfully deleted item {} of {}'s inventory\n", index + 1, storeString);
 	}
@@ -418,6 +406,13 @@ static void addItem() {
 	double price{};
 	fstream file;
 
+	//for (int i = 0; i < (sizeof(formats) / sizeof(formats[0]) +1); i++) {
+	//	dynamicNaming(i);
+	//	cout << format("Enter {}: ", formats[i]);
+	//	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	//	cin >> formats[i];
+	//}
+
 	cout << "Enter a name: ";
 	cin.ignore(numeric_limits<streamsize>::max(), '\n');
 	getline(cin, name);
@@ -428,28 +423,33 @@ static void addItem() {
 	cout << "Enter a price: ";
 	validateInput(price, 1);
 
-	switch (storeNum) {
-	case 1:
-		wellington.push_back({ name, to_string(amount), format("{:.2f}", (price)) });
+	(*targetVec).push_back({name, to_string(amount), format("{:.2f}", (price))});
 
-		file.open("wellington.txt", ios::app);
-		file << format("{}\n{}\n{}\n\n", name, amount, price);
-		break;
+	file.open(fileName, ios::app);
+	file << format("{}\n{}\n{}\n\n", name, amount, price);
 
-	case 2:
-		christchurch.push_back({ name, to_string(amount), format("{:.2f}", (price)) });
+	//switch (storeNum) {
+	//case 1:
+	//	wellington.push_back({ name, to_string(amount), format("{:.2f}", (price)) });
 
-		file.open("christchurch.txt", ios::app);
-		file << format("{}\n{}\n{}\n\n", name, amount, price);
-		break;
+	//	file.open("wellington.txt", ios::app);
+	//	file << format("{}\n{}\n{}\n\n", name, amount, price);
+	//	break;
 
-	case 3:
-		auckland.push_back({ name, to_string(amount), format("{:.2f}", (price)) });
+	//case 2:
+	//	christchurch.push_back({ name, to_string(amount), format("{:.2f}", (price)) });
 
-		file.open("auckland.txt", ios::app);
-		file << format("{}\n{}\n{}\n\n", name, amount, price);
-		break;
-	}
+	//	file.open("christchurch.txt", ios::app);
+	//	file << format("{}\n{}\n{}\n\n", name, amount, price);
+	//	break;
+
+	//case 3:
+	//	auckland.push_back({ name, to_string(amount), format("{:.2f}", (price)) });
+
+	//	file.open("auckland.txt", ios::app);
+	//	file << format("{}\n{}\n{}\n\n", name, amount, price);
+	//	break;
+	//}
 
 	cout << format("Successfully added {} to {}'s inventory\n", name, storeString);
 
@@ -466,19 +466,21 @@ static void editInventory() {
 	cout << "Please choose an option: ";
 	validateInput(answer, 1, 3);
 
-	switch (storeNum) {
-	case 1:
-		max = wellington.size();
-		break;
+	max = (*targetVec).size();
 
-	case 2:
-		max = christchurch.size();
-		break;
+	//switch (storeNum) {
+	//case 1:
+	//	max = wellington.size();
+	//	break;
 
-	case 3:
-		max = auckland.size();
-		break;
-	}
+	//case 2:
+	//	max = christchurch.size();
+	//	break;
+
+	//case 3:
+	//	max = auckland.size();
+	//	break;
+	//}
 
 	switch (answer) {
 	case 1:
@@ -493,6 +495,74 @@ static void editInventory() {
 		deleteInventory(max);
 	}
 }
+
+//employee management
+static void editEmployees() {
+	
+	int answer{}, employeeID{}, newValue{}, index{}, max = employees.size();
+	double pay{};
+	string name{}, role{}, newName{}, prevItem{}, displayItem{};;
+	fstream file;
+	cout << "\n\n";
+
+	//display all employees 
+
+	for (int i = 0; i < employees.size(); i++) {
+		cout << format("Employee {}\n", i + 1);
+		for (int j = 0; j < employees[i].size(); j++) {
+			if (j == 1) {
+				cout << format("{}: $", employeeFormats[j]);
+			}
+			else {
+				cout << format("{}: ", employeeFormats[j]);
+			}
+			cout << format("{}\n", employees[i][j]);
+		}
+		cout << "\n";
+	}
+
+
+
+	cout << "1. Add employee\n2. Edit employee\n3. Delete employee\n\n";
+	cout << "Please choose an option: ";
+	validateInput(answer, 1, 3);
+
+	switch (answer) {
+	case 1:
+		//add employee to employees vector, then export to text file
+		cout << "Enter employee name: ";
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		getline(cin, name);
+
+		cout << "Enter pay per hour: ";
+		validateInput(pay, 1);
+
+		cout << "Enter employee role: ";
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		getline(cin, role);
+
+		employees.push_back({ name, to_string(pay), role});
+
+		file.open("employees.txt", ios::app);
+		file << format("{}\n{}\n{}\n\n", name, format("{:.2f}", (pay)), role);
+		break;
+
+	case 2:
+		//edit employee from employees vector, then export to text file
+		cout << "Pick employee by ID: ";
+		validateInput(index, 1, max);
+		index -= 1;
+
+		break;
+
+	case 3:
+		
+		break;
+	}
+
+
+}
+
 
 // Checks if password uses best password practices
 static string checkPassword(string& password) {
@@ -595,6 +665,7 @@ static void program() {
 
 		cout << "===================Inventory Management System===================\n\n";
 		if (adminAccount) {
+			cout << "Logged in as admin\n\n";
 			cout << "1. View Inventory\n2. Edit Inventory\n3. Edit Employees\n4. Edit Roster\n5. Logout\n6. Exit";
 			cout << "\n\nSelect an option: ";
 			validateInput(userChoice, 1, 6);
@@ -610,7 +681,8 @@ static void program() {
 				break;
 
 			case 3:
-				cout << "Edit employees"; // add and delete employees from the accounts vector, then export the vector to the text file
+				// add and delete employees from the accounts vector, then export the vector to the text file
+				editEmployees(); 
 				break;
 
 			case 4:
