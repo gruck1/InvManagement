@@ -66,7 +66,7 @@ Example:
 
 	fstream file(fileName); this uses dynamic file names
 */
-static void dynamicNaming(int index) {
+static void getFileInfo(int index) {
 
 	switch (index) {
 	case 0:
@@ -103,7 +103,7 @@ static void dynamicNaming(int index) {
 static void createFiles() {
 
 	for (int i = 0; i < vectorCount; i++) {
-		dynamicNaming(i);
+		getFileInfo(i);
 		fstream file(fileName, ios::app);
 		file.close();
 	}
@@ -118,7 +118,7 @@ static void fileToVector() {
 
 	for (index = 0; index < vectorCount; index++) {
 
-		dynamicNaming(index);
+		getFileInfo(index);
 
 		file.open(fileName, ios::in);
 
@@ -159,6 +159,45 @@ static void fileToVector() {
 
 	fileName = "";
 
+}
+
+static void vectorToFile() {
+
+	fstream file;
+	int index{}, lineCount{};
+	string line{};
+
+	for (index = 0; index < 1; index++) {
+
+		lineCount = 0;
+
+		getFileInfo(index);
+		file.open(fileName, ios::in);
+
+		if (file_size(fileName) > 0) {
+
+			while (getline(file, line)) {
+				lineCount++;
+			}
+			lineCount -= 2;
+
+			file.close();
+			file.open(fileName, ios::trunc);
+			file << "";
+			file.close();
+
+			file.open(fileName, ios::app);
+			for (int i = 0; i < lineCount; i++) {
+
+				for (int j = 0; j < (*targetVec)[i].size(); j++) {
+					file << (*targetVec)[i][j];
+					file << "\n";
+				}
+				file << "\n";
+
+			}
+		}
+	}
 }
 
 //check if the username and password match any of the accounts in the accounts vector. if it does, return true, if not return, false
@@ -222,7 +261,7 @@ static void pickStore() {
 	cout << "Please choose a store: ";
 	validateInput(storeNum, 1, 3);
 
-	dynamicNaming(storeNum - 1);
+	getFileInfo(storeNum - 1);
 
 }
 
@@ -332,6 +371,8 @@ static void editingItem(int& max) {
 		(*targetVec)[index][answer] = format("{:.2f}", newMoney);
 	}
 
+	vectorToFile();
+
 	displayItem = displaySpecificItem(displayItem, index);
 
 	if (fileName != "employees.txt") {
@@ -379,12 +420,11 @@ static void deleteInventory(int& max) {
 		(*targetVec).erase((*targetVec).begin() + index);
 
 		cout << format("Successfully deleted item {} of {}'s inventory\n", index + 1, storeString);
+		vectorToFile();
 	}
 	else {
 		cout << "Deletion cancelled\n";
 	}
-
-
 
 }
 
@@ -400,12 +440,11 @@ static void deleteEmployee(int& max) {
 		(*targetVec).erase((*targetVec).begin() + index);
 
 		cout << format("Successfully deleted item {} from list of employees\n", index + 1);
+		vectorToFile();
 	}
 	else {
 		cout << "Deletion cancelled\n";
 	}
-
-
 
 }
 
