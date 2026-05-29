@@ -64,16 +64,19 @@ static void dynamicNaming(int index) {
 	switch (index) {
 	case 0:
 		fileName = "wellington.txt";
+		storeString = "Wellington";
 		targetVec = &wellington;
 		break;
 
 	case 1:
 		fileName = "christchurch.txt";
+		storeString = "Christchurch";
 		targetVec = &christchurch;
 		break;
 
 	case 2:
 		fileName = "auckland.txt";
+		storeString = "Auckland";
 		targetVec = &auckland;
 		break;
 
@@ -207,22 +210,7 @@ static void pickStore() {
 	cout << "Please choose a store: ";
 	validateInput(storeNum, 1, 3);
 
-	switch (storeNum) {
-	case 1:
-		storeString = "Wellington";
-		targetVec = &wellington;
-		break;
-
-	case 2:
-		storeString = "Christchurch";
-		targetVec = &christchurch;
-		break;
-
-	case 3:
-		storeString = "Auckland";
-		targetVec = &auckland;
-		break;
-	}
+	dynamicNaming(storeNum - 1);
 
 }
 
