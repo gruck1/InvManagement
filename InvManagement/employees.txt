@@ -1,20 +1,28 @@
 William
-1000.00
 fah
+1000.00
 
 test
-1.00
 tester
+1.00
 
 Daniel
-1.00
 shlooby
+1.00
 
 man
-4.00
 dude
+4.00
 
 noice
-30.00
 he chillin
+30.00
+
+Johnathon
+I spelt that wrong
+5
+
+cool
+cool
+3
 
