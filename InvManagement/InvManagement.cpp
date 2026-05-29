@@ -161,35 +161,28 @@ static void fileToVector() {
 
 }
 
+// Converts the vectors back to files, used when an item is deleted or edited
 static void vectorToFile() {
 
 	fstream file;
 	int index{}, lineCount{};
 	string line{};
 
-	for (index = 0; index < 1; index++) {
-
-		lineCount = 0;
+	for (index = 0; index < vectorCount; index++) { // 1 is placeholder
 
 		getFileInfo(index);
 		file.open(fileName, ios::in);
 
 		if (file_size(fileName) > 0) {
 
-			while (getline(file, line)) {
-				lineCount++;
-			}
-			lineCount -= 2;
-
-			file.close();
-			file.open(fileName, ios::trunc);
-			file << "";
+			resize_file(fileName, 0);
 			file.close();
 
 			file.open(fileName, ios::app);
-			for (int i = 0; i < lineCount; i++) {
+			for (int i = 0; i < (*targetVec).size(); i++) {
 
 				for (int j = 0; j < (*targetVec)[i].size(); j++) {
+					cout << (*targetVec)[i].size() << endl;
 					file << (*targetVec)[i][j];
 					file << "\n";
 				}
