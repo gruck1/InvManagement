@@ -23,7 +23,9 @@ vector<vector<string>>employees = {};
 
 vector<vector<string>>* targetVec = &wellington;
 
-string storeString{}, fileName, inventoryFormats[3] = { "name", "amount", "price" }, employeeFormats[3] = { "name", "pay", "role" };
+string storeString{}, fileName;
+string inventoryFormats[3] = { "name", "amount", "price" }, employeeFormats[3] = { "name", "pay", "role" };
+string* targetFormats = inventoryFormats;
 
 int storeNum{};
 bool loggedIn = true;
@@ -262,8 +264,9 @@ static string displaySpecificItem(string& value, int& index) {
 // Handles the actual editing part of the inventories
 static void editingStock(int& max) {
 
-	int index{}, newValue{}, answer{};
+	int index{}, newAmount{}, answer{};
 	string newName{}, prevItem{}, displayItem{};
+	double newPrice{};
 
 	cout << "Pick item by ID: ";
 	validateInput(index, 1, max);
@@ -278,21 +281,33 @@ static void editingStock(int& max) {
 	answer -= 1;
 
 	cout << format("Enter new {}: ", inventoryFormats[answer]);
-	if (answer == 0) {
+	
+	switch (answer) {
+	case 0:
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		getline(cin, newName);
-	}
-	else {
-		validateInput(newValue);
-	}
+		break;
 
+	case 1:
+		validateInput(newAmount);
+		break;
+
+	case 2:
+		validateInput(newPrice);
+	}
 
 	prevItem = (*targetVec)[index][answer];
-	if (answer == 0) {
+	switch (answer) {
+	case 0:
 		(*targetVec)[index][answer] = newName;
-	}
-	else {
-		(*targetVec)[index][answer] = to_string(newValue);
+		break;
+
+	case 1:
+		(*targetVec)[index][answer] = to_string(newAmount);
+		break;
+
+	case 2:
+		(*targetVec)[index][answer] = format("{:.2f}", newPrice);
 	}
 
 	//switch (storeNum) {
@@ -330,17 +345,21 @@ static void editingStock(int& max) {
 	displayItem = displaySpecificItem(displayItem, index);
 
 	if (answer == 2) {
-		cout << format("Successfully changed item {}'s {} from ${} to ${} inside {}'s inventory\n", index + 1, inventoryFormats[answer], prevItem, newValue, storeString);
+		cout << format("Successfully changed item {}'s {} from ${} to ${:.2f} inside {}'s inventory\n", index + 1, inventoryFormats[answer], prevItem, newPrice, storeString);
 	}
 	else {
-		cout << format("Successfully changed item {}'s {} from {} ", index + 1, inventoryFormats[answer], prevItem);
-		if (answer == 0) {
-			cout << format("to {} ", newName);
+		cout << format("Successfully changed item {}'s {} from {} to ", index + 1, inventoryFormats[answer], prevItem);
+
+		switch (answer) {
+		case 0:
+			cout << newName;
+			break;
+
+		case 1:
+			cout << newAmount;
+			break;
 		}
-		else {
-			cout << format("to {} ", newValue);
-		}
-		cout << format("inside {}'s inventory", storeString);
+		cout << format("inside {}'s inventory\n", storeString);
 	}
 	cout << format("\nDetails:\n\n{}", displayItem);
 }
@@ -628,11 +647,13 @@ static void program() {
 
 			case 1:
 				// View and edit all inventories
+				targetFormats = inventoryFormats;
 				editInventory();
 				break;
 
 			case 2:
 				// add and delete employees from the account's vector, then export the vector to the text file
+				targetFormats = employeeFormats;
 				editEmployees(); 
 				break;
 
@@ -682,6 +703,9 @@ static void program() {
 
 // When code starts, run these functions then loop program forever
 int main() {
+
+	targetFormats[2] = "shlooby";
+	cout << inventoryFormats[2];
 
 	createFiles();
 	fileToVector();
