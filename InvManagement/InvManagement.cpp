@@ -2,7 +2,8 @@
 /* Latest changes
 	- Combined a bunch of employee editing functions to save space using dynamic formats
 	- You can now edit and delete employees
-	- Realised that editing or deleting doesn't save to text file -_- I'll need to bring back the vectorToFile function
+	- You can now delete your account when signed in as a non-admin
+	- vectorToFile works now
 */
 
 #include <iostream>
@@ -30,11 +31,10 @@ vector<string> employeeFormats = { "name", "role", "salary" };
 vector<string>* targetFormats = &inventoryFormats;
 vector<vector<string>>* targetVec = &wellington;
 
-string storeString{}, fileName{};
+string storeString{}, fileName{}, username{}, password{};;
 
 int storeNum{};
-bool loggedIn = true;
-bool adminAccount = true;
+bool loggedIn = false, adminAccount = false;
 
 // Handles invalid input and ranges
 static int validateInput(auto& validator, int lower = -1000000000, int higher = 1000000000) {
@@ -66,7 +66,7 @@ Example:
 
 	fstream file(fileName); this uses dynamic file names
 */
-static void dynamicNaming(int index) {
+static void getFileInfo(int index) {
 
 	switch (index) {
 	case 0:
@@ -103,7 +103,7 @@ static void dynamicNaming(int index) {
 static void createFiles() {
 
 	for (int i = 0; i < vectorCount; i++) {
-		dynamicNaming(i);
+		getFileInfo(i);
 		fstream file(fileName, ios::app);
 		file.close();
 	}
@@ -118,7 +118,7 @@ static void fileToVector() {
 
 	for (index = 0; index < vectorCount; index++) {
 
-		dynamicNaming(index);
+		getFileInfo(index);
 
 		file.open(fileName, ios::in);
 
@@ -159,6 +159,37 @@ static void fileToVector() {
 
 	fileName = "";
 
+}
+
+// Converts the vectors back to files, used when an item is deleted or edited
+static void vectorToFile() {
+
+	fstream file;
+	int index{}, lineCount{};
+	string line{};
+
+	for (index = 0; index < vectorCount; index++) { // 1 is placeholder
+
+		getFileInfo(index);
+		file.open(fileName, ios::in);
+
+		if (file_size(fileName) > 0) {
+
+			resize_file(fileName, 0);
+			file.close();
+
+			file.open(fileName, ios::app);
+			for (int i = 0; i < (*targetVec).size(); i++) {
+
+				for (int j = 0; j < (*targetVec)[i].size(); j++) {
+					file << (*targetVec)[i][j];
+					file << "\n";
+				}
+				file << "\n";
+
+			}
+		}
+	}
 }
 
 //check if the username and password match any of the accounts in the accounts vector. if it does, return true, if not return, false
@@ -222,7 +253,7 @@ static void pickStore() {
 	cout << "Please choose a store: ";
 	validateInput(storeNum, 1, 3);
 
-	dynamicNaming(storeNum - 1);
+	getFileInfo(storeNum - 1);
 
 }
 
@@ -332,6 +363,8 @@ static void editingItem(int& max) {
 		(*targetVec)[index][answer] = format("{:.2f}", newMoney);
 	}
 
+	vectorToFile();
+
 	displayItem = displaySpecificItem(displayItem, index);
 
 	if (fileName != "employees.txt") {
@@ -378,13 +411,12 @@ static void deleteInventory(int& max) {
 	if (confirm(format("WARNING: You are about to delete item {} of {}'s inventory\nDo you wish to proceed?\n", index + 1, storeString))) {
 		(*targetVec).erase((*targetVec).begin() + index);
 
+		vectorToFile();
 		cout << format("Successfully deleted item {} of {}'s inventory\n", index + 1, storeString);
 	}
 	else {
 		cout << "Deletion cancelled\n";
 	}
-
-
 
 }
 
@@ -399,13 +431,32 @@ static void deleteEmployee(int& max) {
 	if (confirm(format("WARNING: You are about to delete item {} from list of employees\nDo you wish to proceed?\n", index + 1, storeString))) {
 		(*targetVec).erase((*targetVec).begin() + index);
 
+		vectorToFile();
 		cout << format("Successfully deleted item {} from list of employees\n", index + 1);
 	}
 	else {
 		cout << "Deletion cancelled\n";
 	}
 
+}
 
+static void deleteAccount() {
+
+	if (confirm("WARNING: You are about to delete your account. Do you wish to proceed?\n")) {
+
+		for (int i = 0; i < accounts.size(); i++) {
+			if (accounts[i][0] == username && accounts[i][1] == password) {
+				accounts.erase(accounts.begin() + i);
+
+				vectorToFile();
+				cout << format("Your account {} has been successfully deleted\n", username);
+				loggedIn = false;
+			}
+		}
+	}
+	else {
+		cout << "Deletion cancelled\n";
+	}
 
 }
 
@@ -553,7 +604,6 @@ static void program() {
 	fstream file;
 
 	int userChoice{};
-	string username{}, password{};
 
 	while (!loggedIn) {
 		//log in or sign up
@@ -655,7 +705,7 @@ static void program() {
 		}
 		else {
 
-			cout << "1. View inventory\n2. Order product\n3. Logout\n4. Exit\n\n";
+			cout << "1. View inventory\n2. Order product\n3. Logout\n4. Delete account\n5. Exit\n\n";
 			cout << "Select an option: ";
 			validateInput(userChoice, 1, 4);
 
@@ -672,6 +722,10 @@ static void program() {
 				break;
 
 			case 4:
+				deleteAccount();
+				break;
+
+			case 5:
 				exit(0);
 			}
 		}
