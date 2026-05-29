@@ -1,6 +1,8 @@
 
 /* Latest changes
-	- You can now add employees
+	- Combined a bunch of employee editing functions to save space using dynamic formats
+	- You can now edit and delete employees
+	- Realised that editing or deleting doesn't save to text file -_- I'll need to bring back the vectorToFile function
 */
 
 #include <iostream>
@@ -20,10 +22,15 @@ vector<vector<string>>christchurch = {};
 vector<vector<string>>auckland = {};
 vector<vector<string>>accounts = {};
 vector<vector<string>>employees = {};
+// Don't add any vectors to vectorCount below here
 
+vector<string> inventoryFormats = { "name", "amount", "price" };
+vector<string> employeeFormats = { "name", "role", "salary" };
+
+vector<string>* targetFormats = &inventoryFormats;
 vector<vector<string>>* targetVec = &wellington;
 
-string storeString{}, fileName, inventoryFormats[3] = { "name", "amount", "price" }, employeeFormats[3] = { "name", "pay", "role" };
+string storeString{}, fileName{};
 
 int storeNum{};
 bool loggedIn = true;
@@ -149,6 +156,9 @@ static void fileToVector() {
 		}
 		file.close();
 	}
+
+	fileName = "";
+
 }
 
 //check if the username and password match any of the accounts in the accounts vector. if it does, return true, if not return, false
@@ -183,6 +193,8 @@ static bool checkLogin(string username, string password, string mode = "login") 
 		}
 		return false;
 	}
+
+	return false;
 }
 
 // Handles confirming options the user has chosen E.G deleting an item
@@ -215,18 +227,20 @@ static void pickStore() {
 }
 
 // Handles displaying the inventories
-static void viewInventory() {
+static void viewDetails() {
 
-	pickStore();
+	if (fileName != "employees.txt") {
+		pickStore();
+	}
 
 	for (int i = 0; i < (*targetVec).size(); i++) {
 		cout << format("Item {}\n", i + 1);
 		for (int j = 0; j < (*targetVec)[i].size(); j++) {
 			if (j == 2) {
-				cout << format("{}: $", inventoryFormats[j]);
+				cout << format("{}: $", (*targetFormats)[j]);
 			}
 			else {
-				cout << format("{}: ", inventoryFormats[j]);
+				cout << format("{}: ", (*targetFormats)[j]);
 			}
 			cout << format("{}\n", (*targetVec)[i][j]);
 		}
@@ -244,10 +258,10 @@ static string displaySpecificItem(string& value, int& index) {
 	value += format("Item {}\n", index + 1);
 	for (int i = 0; i < (*targetVec)[index].size(); i++) {
 		if (i == 2) {
-			value += format("{}: $", inventoryFormats[i]);
+			value += format("{}: $", (*targetFormats)[i]);
 		}
 		else {
-			value += format("{}: ", inventoryFormats[i]);
+			value += format("{}: ", (*targetFormats)[i]);
 		}
 		value += format("{}\n", (*targetVec)[index][i]);
 	}
@@ -256,11 +270,12 @@ static string displaySpecificItem(string& value, int& index) {
 	return value;
 }
 
-// Handles the actual editing part of the inventories
-static void editingStock(int& max) {
+// Handles the actual editing part of either inventories or list of employees
+static void editingItem(int& max) {
 
-	int index{}, newValue{}, answer{};
-	string newName{}, prevItem{}, displayItem{};
+	int index{}, newAmount{}, answer{};
+	string newName{}, newRole, prevItem{}, displayItem{};
+	double newMoney{};
 
 	cout << "Pick item by ID: ";
 	validateInput(index, 1, max);
@@ -269,76 +284,85 @@ static void editingStock(int& max) {
 	displayItem = displaySpecificItem(displayItem, index);
 	cout << displayItem;
 
-	cout << "1. Edit name\n2. Edit amount\n3. Edit price\n\n";
-	cout << "Select an option: ";
+	for (int i = 0; i < (*targetFormats).size(); i++) {
+		cout << format("{}. Edit {}\n", i + 1, (*targetFormats)[i]);
+	}
+	cout << "\nSelect an option: ";
 	validateInput(answer, 1, 3);
 	answer -= 1;
 
-	cout << format("Enter new {}: ", inventoryFormats[answer]);
-	if (answer == 0) {
+	cout << format("Enter new {}: ", (*targetFormats)[answer]);
+	
+	switch (answer) {
+	case 0:
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		getline(cin, newName);
-	}
-	else {
-		validateInput(newValue);
-	}
+		break;
 
+	case 1:
+		if (fileName != "employees.txt") {
+			validateInput(newAmount);
+		}
+		else {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			getline(cin, newRole);
+		}
+		break;
+
+	case 2:
+		validateInput(newMoney);
+	}
 
 	prevItem = (*targetVec)[index][answer];
-	if (answer == 0) {
+	switch (answer) {
+	case 0:
 		(*targetVec)[index][answer] = newName;
+		break;
+
+	case 1:
+		if (fileName != "employees.txt") {
+			(*targetVec)[index][answer] = to_string(newAmount);
+		}
+		else {
+			(*targetVec)[index][answer] = newRole;
+		}
+		break;
+
+	case 2:
+		(*targetVec)[index][answer] = format("{:.2f}", newMoney);
 	}
-	else {
-		(*targetVec)[index][answer] = to_string(newValue);
-	}
-
-	//switch (storeNum) {
-	//case 1:
-	//	prevItem = wellington[index][answer];
-	//	if (answer == 0) {
-	//		wellington[index][answer] = newName;
-	//	}
-	//	else {
-	//		wellington[index][answer] = to_string(newValue);
-	//	}
-	//	break;
-
-	//case 2:
-	//	prevItem = christchurch[index][answer];
-	//	if (answer == 0) {
-	//		christchurch[index][answer] = newName;
-	//	}
-	//	else {
-	//		christchurch[index][answer] = to_string(newValue);
-	//	}
-	//	break;
-
-	//case 3:
-	//	prevItem = auckland[index][answer];
-	//	if (answer == 0) {
-	//		auckland[index][answer] = newName;
-	//	}
-	//	else {
-	//		auckland[index][answer] = to_string(newValue);
-	//	}
-	//	break;
-	//}
 
 	displayItem = displaySpecificItem(displayItem, index);
 
-	if (answer == 2) {
-		cout << format("Successfully changed item {}'s {} from ${} to ${} inside {}'s inventory\n", index + 1, inventoryFormats[answer], prevItem, newValue, storeString);
+	if (fileName != "employees.txt") {
+		switch (answer) {
+		case 0:
+			cout << format("Successfully changed item {}'s {} from {} to {} inside {}'s inventory\n", index + 1, (*targetFormats)[answer], prevItem, newName, storeString);
+			break;
+
+		case 1:
+			cout << format("Successfully changed item {}'s {} from {} to {} inside {}'s inventory\n", index + 1, (*targetFormats)[answer], prevItem, newAmount, storeString);
+			break;
+
+		case 2:
+			cout << format("Successfully changed item {}'s {} from ${} to ${:.2f} inside {}'s inventory\n", index + 1, (*targetFormats)[answer], prevItem, newMoney, storeString);
+		}
 	}
 	else {
-		cout << format("Successfully changed item {}'s {} from {} ", index + 1, inventoryFormats[answer], prevItem);
-		if (answer == 0) {
-			cout << format("to {} ", newName);
+		switch (answer) {
+		case 0:
+			cout << format("Successfully changed employee {}'s {} from {} to {}\n", index + 1, (*targetFormats)[answer], prevItem, newName);
+			break;
+
+		case 1:
+			cout << format("Successfully changed item {}'s {} from {} to {}\n", index + 1, (*targetFormats)[answer], prevItem, newRole);
+			break;
+
+		case 2:
+			cout << format("Successfully changed item {}'s {} from ${} to ${:.2f}\n", index + 1, (*targetFormats)[answer], prevItem, newMoney);
 		}
-		else {
-			cout << format("to {} ", newValue);
-		}
-		cout << format("inside {}'s inventory", storeString);
 	}
+
 	cout << format("\nDetails:\n\n{}", displayItem);
 }
 
@@ -359,30 +383,75 @@ static void deleteInventory(int& max) {
 	else {
 		cout << "Deletion cancelled\n";
 	}
+
+
+
 }
 
-// Handles adding an item to an inventory
+static void deleteEmployee(int& max) {
+
+	int index{};
+
+	cout << "Choose the ID of the item you want to delete: ";
+	validateInput(index, 1, max);
+	index -= 1;
+
+	if (confirm(format("WARNING: You are about to delete item {} from list of employees\nDo you wish to proceed?\n", index + 1, storeString))) {
+		(*targetVec).erase((*targetVec).begin() + index);
+
+		cout << format("Successfully deleted item {} from list of employees\n", index + 1);
+	}
+	else {
+		cout << "Deletion cancelled\n";
+	}
+
+
+
+}
+
+// Handles adding an item to either inventory or list of employees
 static void addItem() {
 
-	string name{};
+	string name{}, role{};
 	int amount{};
 	double price{};
+	fstream file;
 
-	cout << "Enter a name: ";
-	cin.ignore(numeric_limits<streamsize>::max(), '\n');
-	getline(cin, name);
+	for (int i = 0; i < (*targetFormats).size(); i++) {
+		cout << format("Enter {}: ", (*targetFormats)[i]);
+		switch (i) {
+		case 0:
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			getline(cin, name);
+			break;
 
-	cout << "Enter an amount: ";
-	validateInput(amount, 1);
+		case 1:
+			if (fileName != "employees.txt") {
+				validateInput(amount, 1);
+			}
+			else {
+				getline(cin, role);
+			}
+			break;
 
-	cout << "Enter a price: ";
-	validateInput(price, 1);
+		case 2:
+			validateInput(price, 1);
+		}
+	}
 
-	(*targetVec).push_back({name, to_string(amount), format("{:.2f}", (price))});
-	fstream file(fileName, ios::app);
-	file << format("{}\n{}\n{}\n\n", name, amount, price);
+	file.open(fileName, ios::app);
+	if (fileName != "employees.txt") {
+		(*targetVec).push_back({ name, to_string(amount), format("{:.2f}", (price)) });
+		file << format("{}\n{}\n{}\n\n", name, amount, price);
 
-	cout << format("Successfully added {} to {}'s inventory\n", name, storeString);
+		cout << format("\nSuccessfully added {} to {}'s inventory\n", name, storeString);
+	}
+	else {
+		(*targetVec).push_back({ name, role, format("{:.2f}", (price)) });
+		file << format("{}\n{}\n{}\n\n", name, role, price);
+
+		cout << format("\nSuccessfully added {} to list of employees\n", name);
+	}
 
 }
 
@@ -391,7 +460,7 @@ static void editInventory() {
 
 	int max{}, answer{};
 
-	viewInventory();
+	viewDetails();
 
 	cout << "1. Add item\n2. Edit item\n3. Delete item\n4. Back\n\n";
 	cout << "Please choose an option: ";
@@ -405,7 +474,7 @@ static void editInventory() {
 		break;
 
 	case 2:
-		editingStock(max);
+		editingItem(max);
 		break;
 
 	case 3:
@@ -417,82 +486,34 @@ static void editInventory() {
 	}
 }
 
-// Handles displaying employees
-static void viewEmployeeDetails() {
-
-	for (int i = 0; i < employees.size(); i++) {
-		cout << format("Employee {}\n", i + 1);
-		for (int j = 0; j < employees[i].size(); j++) {
-			if (j == 1) {
-				cout << format("{}: $", employeeFormats[j]);
-			}
-			else {
-				cout << format("{}: ", employeeFormats[j]);
-			}
-			cout << format("{}\n", employees[i][j]);
-		}
-		cout << "\n";
-	}
-
-}
-
-// Handles adding new employees
-static void addEmployee() {
-
-	string name{}, role{};
-	double pay{};
-
-	fstream file;
-
-	cout << "Enter employee name: ";
-	cin.ignore(numeric_limits<streamsize>::max(), '\n');
-	getline(cin, name);
-
-	cout << "Enter pay per hour: ";
-	validateInput(pay, 1);
-
-	cout << "Enter employee role: ";
-	cin.ignore(numeric_limits<streamsize>::max(), '\n');
-	getline(cin, role);
-
-	employees.push_back({ name, format("{:.2f}", pay), role });
-
-	file.open("employees.txt", ios::app);
-	file << format("{}\n{}\n{}\n\n", name, format("{:.2f}", (pay)), role);
-
-	cout << format("Successfully added {} as a new employee\n", name);
-
-}
-
 //employee management
 static void editEmployees() {
 	
-	int answer{}, employeeID{}, newValue{}, index{}, max = employees.size();
+	int answer{}, employeeID{}, newAmount{}, index{}, max = employees.size();
 
-	viewEmployeeDetails();
+	fileName = "employees.txt";
+	targetVec = &employees;
+	viewDetails();
 
 	cout << "1. Add employee\n2. Edit employee\n3. Delete employee\n4. Back\n\n";
 	cout << "Please choose an option: ";
-	validateInput(answer, 1, 3);
+	validateInput(answer, 1, 4);
 
 	switch (answer) {
 	case 1:
-		addEmployee();
+		addItem();
 		break;
 
 	case 2:
-		//edit employee from employees vector, then export to text file
-		cout << "Pick employee by ID: ";
-		validateInput(index, 1, max);
-		index -= 1;
-
+		editingItem(max);
 		break;
 
 	case 3:
-		
+		deleteEmployee(max);
 		break;
 
 	case 4:
+		fileName = "";
 		return;
 	}
 }
@@ -607,11 +628,13 @@ static void program() {
 
 			case 1:
 				// View and edit all inventories
+				targetFormats = &inventoryFormats;
 				editInventory();
 				break;
 
 			case 2:
 				// add and delete employees from the account's vector, then export the vector to the text file
+				targetFormats = &employeeFormats;
 				editEmployees(); 
 				break;
 
@@ -638,7 +661,7 @@ static void program() {
 
 			switch (userChoice) {
 			case 1:
-				viewInventory();
+				viewDetails();
 				break;
 
 			case 2:

@@ -1,12 +1,16 @@
 shlooby
 5
-20
+20.00
 
 walter
 1
-1
+1.00
 
 john
 3
-1
+1.00
+
+bongus
+25
+30
 
