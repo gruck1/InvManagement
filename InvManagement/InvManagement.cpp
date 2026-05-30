@@ -1,5 +1,6 @@
 
 /* Latest changes
+	- Almost all admin related interactions are finished now
 	- Combined a bunch of employee editing functions to save space using dynamic formats
 	- You can now edit and delete employees
 	- You can now delete your account when signed in as a non-admin
@@ -62,11 +63,13 @@ static int validateInput(auto& validator, int lower = -1000000000, int higher = 
 }
 
 /*
-Changes fileName to fit txt format so dynamic names can be used.
+Changes info to fit correct format so dynamic names can be used.
 Example:
 	fstream file("wellington.txt"); this is hard coded
+	cout << wellington[0][1]; this is also hard coded
 
-	fstream file(fileName); this uses dynamic file names
+	fstream file(fileName); this uses dynamic names
+	cout << (*targetVec)[0][1]; this also uses dynamic names
 */
 static void getFileInfo(int index) {
 
@@ -931,7 +934,7 @@ static void program() {
 		}
 		else {
 
-			cout << "1. View inventory\n2. Order product\n3. Logout\n4. Delete account\n5. Exit\n\n";
+			cout << "1. View Inventory\n2. Order Product\n3. Logout\n4. Delete Account\n5. Exit\n\n";
 			cout << "Select an option: ";
 			validateInput(userChoice, 1, 4);
 
