@@ -14,6 +14,7 @@
 #include <fstream>
 #include <iomanip>
 #include <filesystem>
+#include <cstdlib>
 
 using namespace std;
 using namespace filesystem;
@@ -37,7 +38,7 @@ vector<vector<string>>* targetVec = &wellington;
 string storeString{}, fileName{}, username{}, password{};;
 
 int storeNum{}, fileInfoNum{};
-bool loggedIn = true, adminAccount = true;
+bool loggedIn = true, adminAccount = true, lowStockOnly = false;
 
 // Handles invalid input and ranges
 static int validateInput(auto& validator, int lower = -1000000000, int higher = 1000000000) {
@@ -59,6 +60,19 @@ static int validateInput(auto& validator, int lower = -1000000000, int higher = 
 	}
 
 	return validator;
+
+}
+
+static void waitForInput() {
+
+	cout << "Press Enter to continue...";
+	
+	if (cin.rdbuf()->in_avail() > 0) {							  // if there are any leftover characters in the input buffer, clear them.
+		cin.ignore(std::numeric_limits<streamsize>::max(), '\n'); // This is needed since the program uses getline which gets the whole line (no buffers left over)
+	}															  // and cin which leaves characters in the input buffer;
+
+	cin.get();
+	system("cls");
 
 }
 
@@ -271,14 +285,29 @@ static void pickStore() {
 }
 
 // Handles displaying the inventories
-static void viewDetails() {
+static bool viewDetails() {
+
+	int count{};
 
 	if ((*targetVec).size() == 0) {
 		cout << format("There are no items inside {}\n\n", storeString);
-		return;
+		return true;
 	}
 
 	for (int i = 0; i < (*targetVec).size(); i++) {
+		if (lowStockOnly == true && (*targetFormats)[1] == "amount") {
+			while (stoi((*targetVec)[i][1]) > 5) {
+				count++;
+				i++;
+				if (count == (*targetVec).size()) {
+					break;
+				}
+			}
+			if (count == (*targetVec).size()) {
+				break;
+			}
+		}
+
 		cout << format("ID {}\n", i + 1);
 		for (int j = 0; j < (*targetVec)[i].size(); j++) {
 			cout << format("{}: {}\n", (*targetFormats)[j], (*targetVec)[i][j]);
@@ -286,6 +315,13 @@ static void viewDetails() {
 		cout << "\n";
 	}
 
+	if (count == (*targetVec).size()) {
+		cout << format("There are no items under 5 stock inside {}\n\n", storeString);
+		waitForInput();
+		return false;
+	}
+
+	return true;
 
 }
 
@@ -347,7 +383,8 @@ static void editingRoster(int& index, int& day) {
 		roster[index][day] = format("{} - {}", startingHoursString, endingHoursString);
 		vectorToFile();
 
-		cout << format("Successfully updated {}'s hours from {} to {} on {}\n", roster[index][0], prevHours, roster[index][day], rosterFormats[day]);
+		cout << format("Successfully updated {}'s hours from {} to {} on {}\n\n", roster[index][0], prevHours, roster[index][day], rosterFormats[day]);
+		waitForInput();
 
 		break;
 
@@ -357,11 +394,13 @@ static void editingRoster(int& index, int& day) {
 		roster[index][day] = "unset";
 		vectorToFile();
 
-		cout << format("Successfully cleared {}'s hours on {}\n", roster[index][0], rosterFormats[day]);
+		cout << format("Successfully cleared {}'s hours on {}\n\n", roster[index][0], rosterFormats[day]);
+		waitForInput();
 
 		break;
 
 	case 3:
+		system("cls");
 		return;
 	}
 }
@@ -375,12 +414,16 @@ static void editingItem(int& max) {
 
 	if ((*targetVec).size() == 0) {
 		cout << format("There are no items to edit inside {}\n\n", storeString);
+		waitForInput();
 		return;
 	}
 
 	cout << "Pick item by ID: ";
 	validateInput(index, 1, max);
 	index -= 1;
+
+	system("cls");
+	cout << "\n";
 
 	displayItem = displaySpecificItem(displayItem, index);
 	cout << displayItem;
@@ -469,35 +512,6 @@ static void editingItem(int& max) {
 
 	displayItem = displaySpecificItem(displayItem, index);
 
-	//if (fileName != "employees.txt") {
-	//	switch (answer) {
-	//	case 0:
-	//		cout << format("Successfully changed item {}'s {} from {} to {} inside {}'s inventory\n", index + 1, (*targetFormats)[answer], prevItem, newName, storeString);
-	//		break;
-
-	//	case 1:
-	//		cout << format("Successfully changed item {}'s {} from {} to {} inside {}'s inventory\n", index + 1, (*targetFormats)[answer], prevItem, newAmount, storeString);
-	//		break;
-
-	//	case 2:
-	//		cout << format("Successfully changed item {}'s {} from {} to ${:.2f} inside {}'s inventory\n", index + 1, (*targetFormats)[answer], prevItem, newMoney, storeString);
-	//	}
-	//}
-	//else {
-	//	switch (answer) {
-	//	case 0:
-	//		cout << format("Successfully changed employee {}'s {} from {} to {}\n", index + 1, (*targetFormats)[answer], prevItem, newName);
-	//		break;
-
-	//	case 1:
-	//		cout << format("Successfully changed item {}'s {} from {} to {}\n", index + 1, (*targetFormats)[answer], prevItem, newRole);
-	//		break;
-
-	//	case 2:
-	//		cout << format("Successfully changed item {}'s {} from {} to ${:.2f}\n", index + 1, (*targetFormats)[answer], prevItem, newMoney);
-	//	}
-	//}
-
 	if (answer == 2) {
 		cout << format("Successfuly changed item {}'s {} from {} to ${}", index + 1, (*targetFormats)[answer], prevItem, displayNewValue);
 	}
@@ -513,6 +527,9 @@ static void editingItem(int& max) {
 	}
 
 	cout << format("\nDetails:\n{}", displayItem);
+
+	waitForInput();
+
 }
 
 // Handles deleting items from the inventories
@@ -522,6 +539,7 @@ static void deleteInventory(int& max) {
 
 	if ((*targetVec).size() == 0) {
 		cout << format("There are no items to delete inside {}\n\n", storeString);
+		waitForInput();
 		return;
 	}
 
@@ -533,11 +551,13 @@ static void deleteInventory(int& max) {
 		(*targetVec).erase((*targetVec).begin() + index);
 
 		vectorToFile();
-		cout << format("Successfully deleted item {} of {}'s inventory\n", index + 1, storeString);
+		cout << format("Successfully deleted item {} of {}'s inventory\n\n", index + 1, storeString);
 	}
 	else {
-		cout << "Deletion cancelled\n";
+		cout << "Deletion cancelled\n\n";
 	}
+
+	waitForInput();
 
 }
 
@@ -547,6 +567,7 @@ static void deleteEmployee(int& max) {
 
 	if ((*targetVec).size() == 0) {
 		cout << format("There are no items to delete inside {}\n\n", storeString);
+		waitForInput();
 		return;
 	}
 
@@ -556,13 +577,16 @@ static void deleteEmployee(int& max) {
 
 	if (confirm(format("WARNING: You are about to delete item {} from list of employees\nDo you wish to proceed?\n", index + 1, storeString))) {
 		(*targetVec).erase((*targetVec).begin() + index);
+		roster.erase(roster.begin() + index);
 
 		vectorToFile();
-		cout << format("Successfully deleted item {} from list of employees\n", index + 1);
+		cout << format("Successfully deleted item {} from list of employees\n\n", index + 1);
 	}
 	else {
-		cout << "Deletion cancelled\n";
+		cout << "Deletion cancelled\n\n";
 	}
+
+	waitForInput();
 
 }
 
@@ -575,14 +599,16 @@ static void deleteAccount() {
 				accounts.erase(accounts.begin() + i);
 
 				vectorToFile();
-				cout << format("Your account {} has been successfully deleted\n", username);
 				loggedIn = false;
+				cout << format("Your account {} has been successfully deleted\n", username);
 			}
 		}
 	}
 	else {
 		cout << "Deletion cancelled\n";
 	}
+
+	loggedIn = false;
 
 }
 
@@ -621,7 +647,7 @@ static void addItem() {
 		(*targetVec).push_back({ name, to_string(amount), format("${:.2f}", (price)) });
 		file << format("{}\n{}\n{}\n\n", name, amount, price);
 
-		cout << format("\nSuccessfully added {} to {}'s inventory\n", name, storeString);
+		cout << format("\nSuccessfully added {} to {}'s inventory\n\n", name, storeString);
 	}
 	else {
 		(*targetVec).push_back({ name, role, format("${:.2f}", (price)) });
@@ -633,8 +659,10 @@ static void addItem() {
 		file.open("roster.txt", ios::app);
 		file << format("{}\nunset\nunset\nunset\nunset\nunset\nunset\nunset\n\n", name);
 
-		cout << format("\nSuccessfully added {} to list of employees\n", name);
+		cout << format("\nSuccessfully added {} to list of employees\n\n", name);
 	}
+
+	waitForInput();
 
 }
 
@@ -645,10 +673,16 @@ static void editInventory() {
 
 	while (true) {
 
-		viewDetails();
+		system("cls");
+		cout << "\n";
+
+		if (!viewDetails()) { // only applies when lowStockMode is set to true and there is nothing under 5 stock
+			return;
+		}
 
 		int max{}, answer{};
 
+		cout << format("Current Store: {}\n\n", storeString);
 		cout << "1. Add item\n2. Edit item\n3. Delete item\n4. Back\n\n";
 		cout << "Please choose an option: ";
 		validateInput(answer, 1, 4);
@@ -669,6 +703,7 @@ static void editInventory() {
 			break;
 
 		case 4:
+			system("cls");
 			return;
 		}
 	}
@@ -678,6 +713,9 @@ static void editInventory() {
 static void editEmployees() {
 
 	while (true) {
+
+		system("cls");
+		cout << "\n";
 
 		fileInfoNum = 4;
 		getFileInfo(4);
@@ -704,6 +742,7 @@ static void editEmployees() {
 
 		case 4:
 			fileName = "";
+			system("cls");
 			return;
 		}
 	}
@@ -731,6 +770,8 @@ static void clearHours(int& max) {
 		cout << "Task cancelled\n\n";
 	}
 
+	waitForInput();
+
 }
 
 // Handles setting the entire roster back to "unset" for each employee
@@ -754,6 +795,8 @@ static void clearRoster() {
 		cout << "Task cancelled\n\n";
 	}
 
+	waitForInput();
+
 }
 
 // Handles editing roster
@@ -761,6 +804,7 @@ static void editRoster() {
 
 	if (roster.size() == 0) {
 		cout << "There are no employees to manage\n\n";
+		waitForInput();
 		return;
 	}
 
@@ -791,6 +835,7 @@ static void editRoster() {
 
 		case 4:
 			fileName = "";
+			system("cls");
 			return;
 		}
 	}
@@ -834,7 +879,7 @@ static void program() {
 
 	while (!loggedIn) {
 		//log in or sign up
-		cout << "\n===================Inventory Management System===================\n\n";
+		cout << "\n===================Aotearoa Treasures' Inventory Management System===================\n\n";
 		cout << "1. Log in\n2. Sign up\n3. Exit\n\nSelect an option: ";
 		validateInput(userChoice, 1, 3);
 
@@ -846,8 +891,9 @@ static void program() {
 			cin >> password;
 
 			if (checkLogin(username, password)) {
-				cout << "Login successful!\n";
+				cout << "Login successful!\n\n";
 				loggedIn = true;
+				waitForInput();
 			}
 			else {
 				cout << "Login failed. Please try again.\n";
@@ -862,12 +908,14 @@ static void program() {
 			cin >> username;
 
 			if (username.length() < 5) {
-				cout << "Error: username must be over 5 characters";
+				cout << "Error: username must be over 5 characters\n\n";
+				waitForInput();
 				continue;
 			}
 
 			if (checkLogin(username, password, "create")) {
-				cout << "Error: username already exists. Please pick a different one";
+				cout << "Error: username already exists. Please pick a different one\n\n";
+				waitForInput();
 				continue;
 			}
 
@@ -882,7 +930,8 @@ static void program() {
 			file << format("{}\n{}\n{}\n\n", username, password, "false");
 			file.close();
 
-			cout << "Successfully created account!";
+			cout << "Successfully created account!\n\n";
+			waitForInput();
 			break;
 
 		case 3:
@@ -895,14 +944,16 @@ static void program() {
 
 		int userChoice{};
 
-		cout << "\n===================Inventory Management System===================\n\n";
+		cout << "\n===================Aotearoa Treasures' Inventory Management System===================\n\n";
 		if (adminAccount) {
 			cout << "Logged in as admin\n\n";
-			cout << "1. View and Edit Inventory\n2. View and Edit Employees\n3. Edit Roster\n4. Logout\n5. Exit";
+			cout << format("1. View and Edit Inventory\n2. View and Edit Employees\n3. Edit Roster\n4. Logout\n5. Toggle \"Low Stock Only\" Mode (Currently {})\n6. Exit", lowStockOnly);
 			cout << "\n\nSelect an option: ";
 			validateInput(userChoice, 1, 6);
-			switch (userChoice) {
 
+			system("cls");
+			cout << "\n";
+			switch (userChoice) {
 			case 1:
 				// View and edit all inventories
 				targetFormats = &inventoryFormats;
@@ -927,6 +978,18 @@ static void program() {
 				break;
 
 			case 5:
+				if (lowStockOnly) {
+					lowStockOnly = false;
+					cout << "\"Low Stock Only\" mode disabled\n\n";
+				}
+				else {
+					lowStockOnly = true;
+					cout << "\"Low Stock Only\" mode enabled\n\n";
+				}
+				waitForInput();
+				break;
+
+			case 6:
 				exit(0);
 				break;
 
