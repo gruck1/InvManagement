@@ -363,11 +363,11 @@ static void editingRoster(int& index, int& day) {
 	}
 }
 
-// Handles the actual editing part of either inventories or list of employees
+// Handles the actual editing part of inventories, list of employees, and roster
 static void editingItem(int& max) {
 
 	int index{}, newAmount{}, answer{};
-	string newName{}, newRole, prevItem{}, displayItem{};
+	string newName{}, newRole, prevItem{}, displayItem{}, displayNewValue{};
 	double newMoney{};
 
 	if ((*targetVec).size() == 0) {
@@ -383,10 +383,10 @@ static void editingItem(int& max) {
 	cout << displayItem;
 
 	for (int i = 0; i < (*targetFormats).size(); i++) {
-		if (fileName == "roster.txt" && i == 0) {
+		if (fileName == "roster.txt" && i == 0) { // skip being able to edit the name when editing roster, only hours can be edited
 			i++;
 		}
-		if (fileName == "roster.txt") {
+		if (fileName == "roster.txt") { // no need for the "i + 1" here because since the first item (name) is skipped, it can use normal i
 			cout << format("{}. Edit {}\n", i, (*targetFormats)[i]);
 		}
 		else {
@@ -394,7 +394,7 @@ static void editingItem(int& max) {
 		}
 	}
 	cout << "\nSelect an option: ";
-	if (fileName == "roster.txt") {
+	if (fileName == "roster.txt") { // since the first item of roster is skipped (the name), we need to take away 1 choice so only a day can be picked
 		validateInput(answer, 1, (*targetFormats).size() - 1);
 	}
 	else {
@@ -414,27 +414,31 @@ static void editingItem(int& max) {
 	case 0:
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		getline(cin, newName);
+		displayNewValue = newName;
 		break;
 
 	case 1:
-		if (fileName != "employees.txt") {
+		if (fileName != "employees.txt") { // since inventory uses an integer input (amount) and employees use a string input (role), they need to be separated
 			validateInput(newAmount);
+			displayNewValue = to_string(newAmount);
 		}
 		else {
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			getline(cin, newRole);
+			displayNewValue = newRole;
 		}
 		break;
 
 	case 2:
 		validateInput(newMoney);
+		displayNewValue = format("{:.2f}", newMoney);
 	}
 
 	prevItem = (*targetVec)[index][answer];
 	switch (answer) {
 	case 0:
 		(*targetVec)[index][answer] = newName;
-		if (fileName == "employees.txt") {
+		if (fileName == "employees.txt") { // if the employee name is edited, make sure to update the name in the roster as well
 			for (int i = 0; i < roster.size(); i++) {
 				if (roster[i][0] == prevItem) {
 					roster[i][0] = newName;
@@ -445,7 +449,7 @@ static void editingItem(int& max) {
 		break;
 
 	case 1:
-		if (fileName != "employees.txt") {
+		if (fileName != "employees.txt") { // same thing applies here, inventory uses an integer (amount) and employees uses a string (role) so they need to be separated
 			(*targetVec)[index][answer] = to_string(newAmount);
 		}
 		else {
@@ -462,33 +466,47 @@ static void editingItem(int& max) {
 
 	displayItem = displaySpecificItem(displayItem, index);
 
-	if (fileName != "employees.txt") {
-		switch (answer) {
-		case 0:
-			cout << format("Successfully changed item {}'s {} from {} to {} inside {}'s inventory\n", index + 1, (*targetFormats)[answer], prevItem, newName, storeString);
-			break;
+	//if (fileName != "employees.txt") {
+	//	switch (answer) {
+	//	case 0:
+	//		cout << format("Successfully changed item {}'s {} from {} to {} inside {}'s inventory\n", index + 1, (*targetFormats)[answer], prevItem, newName, storeString);
+	//		break;
 
-		case 1:
-			cout << format("Successfully changed item {}'s {} from {} to {} inside {}'s inventory\n", index + 1, (*targetFormats)[answer], prevItem, newAmount, storeString);
-			break;
+	//	case 1:
+	//		cout << format("Successfully changed item {}'s {} from {} to {} inside {}'s inventory\n", index + 1, (*targetFormats)[answer], prevItem, newAmount, storeString);
+	//		break;
 
-		case 2:
-			cout << format("Successfully changed item {}'s {} from {} to ${:.2f} inside {}'s inventory\n", index + 1, (*targetFormats)[answer], prevItem, newMoney, storeString);
-		}
+	//	case 2:
+	//		cout << format("Successfully changed item {}'s {} from {} to ${:.2f} inside {}'s inventory\n", index + 1, (*targetFormats)[answer], prevItem, newMoney, storeString);
+	//	}
+	//}
+	//else {
+	//	switch (answer) {
+	//	case 0:
+	//		cout << format("Successfully changed employee {}'s {} from {} to {}\n", index + 1, (*targetFormats)[answer], prevItem, newName);
+	//		break;
+
+	//	case 1:
+	//		cout << format("Successfully changed item {}'s {} from {} to {}\n", index + 1, (*targetFormats)[answer], prevItem, newRole);
+	//		break;
+
+	//	case 2:
+	//		cout << format("Successfully changed item {}'s {} from {} to ${:.2f}\n", index + 1, (*targetFormats)[answer], prevItem, newMoney);
+	//	}
+	//}
+
+	if (answer == 2) {
+		cout << format("Successfuly changed item {}'s {} from {} to ${}", index + 1, (*targetFormats)[answer], prevItem, displayNewValue);
 	}
 	else {
-		switch (answer) {
-		case 0:
-			cout << format("Successfully changed employee {}'s {} from {} to {}\n", index + 1, (*targetFormats)[answer], prevItem, newName);
-			break;
+		cout << format("Successfuly changed item {}'s {} from {} to {}", index + 1, (*targetFormats)[answer], prevItem, displayNewValue);
+	}
 
-		case 1:
-			cout << format("Successfully changed item {}'s {} from {} to {}\n", index + 1, (*targetFormats)[answer], prevItem, newRole);
-			break;
-
-		case 2:
-			cout << format("Successfully changed item {}'s {} from {} to ${:.2f}\n", index + 1, (*targetFormats)[answer], prevItem, newMoney);
-		}
+	if (fileName != "employees.txt") {
+		cout << format(" inside {}'s inventory\n", storeString);
+	}
+	else {
+		cout << "\n";
 	}
 
 	cout << format("\nDetails:\n{}", displayItem);
@@ -688,6 +706,7 @@ static void editEmployees() {
 	}
 }
 
+// Handles setting all hours back to "unset" for one employee
 static void clearHours(int& max) {
 
 	int index{};
@@ -696,7 +715,7 @@ static void clearHours(int& max) {
 	validateInput(index, 1, max);
 	index -= 1;
 
-	if (confirm(format("WARNING: You are about to clear the entire schedule of employee {}.\nAre you sure you want to do this?", roster[index][0]))) {
+	if (confirm(format("WARNING: You are about to clear the entire schedule of employee {}.\nDo you wish to proceed?\n", roster[index][0]))) {
 		for (int i = 1; i < roster[index].size(); i++) {
 			roster[index][i] = "unset";
 		}
@@ -704,6 +723,29 @@ static void clearHours(int& max) {
 		vectorToFile();
 
 		cout << format("Successfully cleared {}'s schedule\n\n", roster[index][0]);
+	}
+	else {
+		cout << "Task cancelled\n\n";
+	}
+
+}
+
+// Handles setting the entire roster back to "unset" for each employee
+static void clearRoster() {
+
+	if (confirm("WARNING: You are about to clear the entire roster. Do you wish to proceed?\n")) {
+		
+		for (int i = 0; i < roster.size(); i++) {
+
+			for (int j = 1; j < roster[i].size(); j++) {
+				roster[i][j] = "unset";
+			}
+
+		}
+
+		vectorToFile();
+
+		cout << "successfully cleared roster\n\n";
 	}
 	else {
 		cout << "Task cancelled\n\n";
@@ -729,7 +771,7 @@ static void editRoster() {
 
 		cout << "1. Assign hours to employee\n2. Clear employee's schedule\n3. Clear Roster\n4. Back\n\n";
 		cout << "Please choose an option: ";
-		validateInput(answer, 1, 2);
+		validateInput(answer, 1, 4);
 
 		switch (answer) {
 		case 1:
@@ -741,7 +783,7 @@ static void editRoster() {
 			break;
 
 		case 3:
-
+			clearRoster();
 			break;
 
 		case 4:
@@ -789,7 +831,7 @@ static void program() {
 
 	while (!loggedIn) {
 		//log in or sign up
-		cout << "\n\n===================Inventory Management System===================\n\n";
+		cout << "\n===================Inventory Management System===================\n\n";
 		cout << "1. Log in\n2. Sign up\n3. Exit\n\nSelect an option: ";
 		validateInput(userChoice, 1, 3);
 
@@ -850,7 +892,7 @@ static void program() {
 
 		int userChoice{};
 
-		cout << "===================Inventory Management System===================\n\n";
+		cout << "\n===================Inventory Management System===================\n\n";
 		if (adminAccount) {
 			cout << "Logged in as admin\n\n";
 			cout << "1. View and Edit Inventory\n2. View and Edit Employees\n3. Edit Roster\n4. Logout\n5. Exit";
