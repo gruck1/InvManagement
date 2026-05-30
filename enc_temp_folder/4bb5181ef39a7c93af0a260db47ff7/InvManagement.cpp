@@ -703,10 +703,10 @@ static void clearHours(int& max) {
 
 		vectorToFile();
 
-		cout << format("Successfully cleared {}'s schedule\n\n", roster[index][0]);
+		cout << format("Successfully cleared {}'s schedule\n", roster[index][0]);
 	}
 	else {
-		cout << "Task cancelled\n\n";
+		cout << "Task cancelled\n";
 	}
 
 }
