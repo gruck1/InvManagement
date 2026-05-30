@@ -400,7 +400,6 @@ static void editingRoster(int& index, int& day) {
 		break;
 
 	case 3:
-		system("cls");
 		return;
 	}
 }
@@ -526,7 +525,7 @@ static void editingItem(int& max) {
 		cout << "\n";
 	}
 
-	cout << format("\nDetails:\n{}", displayItem);
+	cout << format("\nDetails:\n\n{}", displayItem);
 
 	waitForInput();
 
@@ -600,15 +599,15 @@ static void deleteAccount() {
 
 				vectorToFile();
 				loggedIn = false;
-				cout << format("Your account {} has been successfully deleted\n", username);
+				cout << format("Your account {} has been successfully deleted\n\n", username);
 			}
 		}
 	}
 	else {
-		cout << "Deletion cancelled\n";
+		cout << "Deletion cancelled\n\n";
 	}
 
-	loggedIn = false;
+	waitForInput();
 
 }
 
@@ -703,7 +702,6 @@ static void editInventory() {
 			break;
 
 		case 4:
-			system("cls");
 			return;
 		}
 	}
@@ -742,7 +740,6 @@ static void editEmployees() {
 
 		case 4:
 			fileName = "";
-			system("cls");
 			return;
 		}
 	}
@@ -816,7 +813,7 @@ static void editRoster() {
 
 		int answer{}, employeeID{}, newAmount{}, index{}, max = roster.size();
 
-		cout << "1. Assign hours to employee\n2. Clear employee's schedule\n3. Clear Roster\n4. Back\n\n";
+		cout << "1. Assign hours to employee\n2. Clear employee's schedule\n3. Clear roster\n4. Back\n\n";
 		cout << "Please choose an option: ";
 		validateInput(answer, 1, 4);
 
@@ -845,24 +842,25 @@ static void editRoster() {
 // Checks if password uses best password practices
 static string checkPassword(string& password) {
 
-	cin >> password;
-
 	while (password.length() < 12) {
 		cin.clear();
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		cout << "Error: password must be over 12 characters. Try again: ";
+		cin >> password;
 		checkPassword(password);
 	}
 	while (password.find_first_of("0123456789") == string::npos) {
 		cin.clear();
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		cout << "Error: password must contain at least one number. Try again: ";
+		cin >> password;
 		checkPassword(password);
 	}
 	while (password.find_first_of("`~!@#$%^&*()_-=+[]{}\\|;:'\"<,.>/?") == string::npos) {
 		cin.clear();
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		cout << "Error: password must contain at least one special character. Try again: ";
+		cin >> password;
 		checkPassword(password);
 	}
 
@@ -878,17 +876,29 @@ static void program() {
 	int userChoice{};
 
 	while (!loggedIn) {
+
+		system("cls");
+
 		//log in or sign up
 		cout << "\n===================Aotearoa Treasures' Inventory Management System===================\n\n";
 		cout << "1. Log in\n2. Sign up\n3. Exit\n\nSelect an option: ";
 		validateInput(userChoice, 1, 3);
 
+		system("cls");
+		cout << "\n";
 		switch (userChoice) {
 		case 1:
-			cout << "Please enter your username: ";
+			cout << "Please enter your username (type 0 to cancel): ";
 			cin >> username;
-			cout << "Please enter your password: ";
+			if (username == "0") {
+				break;
+			}
+
+			cout << "Please enter your password (type 0 to cancel): ";
 			cin >> password;
+			if (password == "0") {
+				break;
+			}
 
 			if (checkLogin(username, password)) {
 				cout << "Login successful!\n\n";
@@ -896,7 +906,8 @@ static void program() {
 				waitForInput();
 			}
 			else {
-				cout << "Login failed. Please try again.\n";
+				cout << "Login failed. Please try again.\n\n";
+				waitForInput();
 				continue;
 			}
 
@@ -904,8 +915,11 @@ static void program() {
 			//add new account to list of accounts and export to text file
 		case 2:
 
-			cout << "Please choose a username: ";
+			cout << "Please choose a username (type 0 to go back): ";
 			cin >> username;
+			if (username == "0") {
+				break;
+			}
 
 			if (username.length() < 5) {
 				cout << "Error: username must be over 5 characters\n\n";
@@ -920,7 +934,13 @@ static void program() {
 			}
 
 			//check password security
-			cout << "Please enter a password (Password must be over 12 characters,\ncontain at least one number, and one special character): ";
+			cout << "Please enter a password - password must be over 12 characters,\ncontain at least one number, and one special character ";
+			cout << "(type 0 to go back): ";
+			cin >> password;
+			if (password == "0") {
+				break;
+			}
+
 			checkPassword(password);
 
 			//save username and password without admin access
@@ -944,6 +964,7 @@ static void program() {
 
 		int userChoice{};
 
+		system("cls");
 		cout << "\n===================Aotearoa Treasures' Inventory Management System===================\n\n";
 		if (adminAccount) {
 			cout << "Logged in as admin\n\n";
@@ -975,16 +996,20 @@ static void program() {
 			case 4:
 				loggedIn = false;
 				adminAccount = false;
+				lowStockOnly = false;
+
+				cout << "Successfully logged out\n\n";
+				waitForInput();
 				break;
 
 			case 5:
 				if (lowStockOnly) {
 					lowStockOnly = false;
-					cout << "\"Low Stock Only\" mode disabled\n\n";
+					cout << "\"Low Stock Only\" mode disabled. All items are visible to you\n\n";
 				}
 				else {
 					lowStockOnly = true;
-					cout << "\"Low Stock Only\" mode enabled\n\n";
+					cout << "\"Low Stock Only\" mode enabled. Only items with 5 or less stock are visible to you\n\n";
 				}
 				waitForInput();
 				break;
@@ -1001,9 +1026,16 @@ static void program() {
 			cout << "Select an option: ";
 			validateInput(userChoice, 1, 4);
 
+			system("cls");
+			cout << "\n";
 			switch (userChoice) {
 			case 1:
+				pickStore();
+				system("cls");
+				cout << "\n";
+
 				viewDetails();
+				waitForInput();
 				break;
 
 			case 2:
@@ -1011,6 +1043,8 @@ static void program() {
 
 			case 3:
 				loggedIn = false;
+				cout << "Successfully logged out\n\n";
+				waitForInput();
 				break;
 
 			case 4:
