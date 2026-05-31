@@ -301,13 +301,14 @@ static bool viewDetails() {
 	for (int i = 0; i < (*targetVec).size(); i++) {
 		if (lowStockOnly == true && (*targetFormats)[1] == "amount") {
 			while (stoi((*targetVec)[i][1]) > 5) {
-				count++;
 				i++;
-				if (count == (*targetVec).size()) {
+				count++;
+
+				if (i == (*targetVec).size()) {
 					break;
 				}
 			}
-			if (count == (*targetVec).size()) {
+			if (i == (*targetVec).size()) {
 				break;
 			}
 		}
