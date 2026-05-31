@@ -1,4 +1,12 @@
-oranges
-20
-$11.99
+golden apple
+1
+$1000.00
+
+shlooby
+50
+2.5
+
+huzz
+67
+67.67
 

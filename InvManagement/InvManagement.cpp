@@ -216,6 +216,9 @@ static void vectorToFile() {
 			}
 		}
 	}
+
+	getFileInfo(fileInfoNum);
+
 }
 
 //check if the username and password match any of the accounts in the accounts vector. if it does, return true, if not return, false
@@ -507,7 +510,6 @@ static void editingItem(int& max) {
 	}
 
 	vectorToFile();
-	getFileInfo(fileInfoNum);
 
 	displayItem = displaySpecificItem(displayItem, index);
 
@@ -550,6 +552,7 @@ static void deleteInventory(int& max) {
 		(*targetVec).erase((*targetVec).begin() + index);
 
 		vectorToFile();
+		getFileInfo(fileInfoNum);
 		cout << format("Successfully deleted item {} of {}'s inventory\n\n", index + 1, storeString);
 	}
 	else {
