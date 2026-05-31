@@ -63,6 +63,7 @@ static int validateInput(auto& validator, int lower = -1000000000, int higher = 
 
 }
 
+// Handles pauses
 static void waitForInput() {
 
 	cout << "Press Enter to continue...";
