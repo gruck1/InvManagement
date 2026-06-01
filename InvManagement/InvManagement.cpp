@@ -38,7 +38,7 @@ vector<vector<string>>* targetVec = &wellington;
 string storeString{}, fileName{}, username{}, password{};;
 
 int storeNum{}, fileInfoNum{};
-bool loggedIn = true, adminAccount = true, lowStockOnly = false;
+bool loggedIn = true, adminAccount = false, lowStockOnly = false;
 
 // Handles invalid input and ranges
 static int validateInput(auto& validator, int lower = -1000000000, int higher = 1000000000) {
@@ -343,6 +343,7 @@ static string displaySpecificItem(string& value, int& index) {
 	return value;
 }
 
+
 static void editingRoster(int& index, int& day) {
 
 	int answer{};
@@ -408,6 +409,7 @@ static void editingRoster(int& index, int& day) {
 		return;
 	}
 }
+
 
 // Handles the actual editing part of inventories, list of employees, and roster
 static void editingItem(int& max) {
@@ -873,6 +875,35 @@ static string checkPassword(string& password) {
 
 }
 
+// user purchasing products
+static void purchaseProduct() {
+	int productID{}, amount{};
+	string priceStr{};
+	double price{};
+
+	pickStore();
+	system("cls");
+	viewDetails();
+	cout << "\nEnter the ID of the product you want to order: ";
+	cin >> productID;
+	productID -= 1;
+	cout << "\nEnter the amount you want to order: ";
+	cin >> amount;
+	priceStr = (*targetVec)[productID][2];
+	erase(priceStr, '$');
+	price = stod(priceStr);
+	if (amount > stoi((*targetVec)[productID][1])) {
+		cout << "\nError: not enough stock to order that amount\n\n";
+		waitForInput();
+		return;
+	}
+	cout << format("\nYou have successfully ordered {} {} from {}'s inventory, costing ${}\n\n", amount, (*targetVec)[productID][0], storeString, (price * amount));
+	//(*targetVec)[productID][1] = to_string(stoi((*targetVec)[productID][1]) - amount);
+	waitForInput();
+}
+
+
+
 // The actual program, this needed to be in its own function so createFiles and fileToVector would only run once
 static void program() {
 
@@ -1044,6 +1075,7 @@ static void program() {
 				break;
 
 			case 2:
+				purchaseProduct();
 				break;
 
 			case 3:
