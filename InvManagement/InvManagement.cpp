@@ -889,7 +889,9 @@ static void purchaseProduct() {
 	//cin >> productID;
 	productID -= 1;
 	cout << "\nEnter the amount you want to order: ";
-	cin >> amount;
+	//cin >> amount;
+	validateInput(amount, 1, stoi((*targetVec)[productID][1]));
+
 	priceStr = (*targetVec)[productID][2];
 	erase(priceStr, '$');
 	price = stod(priceStr);
@@ -906,6 +908,7 @@ static void purchaseProduct() {
 
 	cout << format("\nYou have successfully ordered {} {} from {}'s inventory, costing ${}\n\n", amount, (*targetVec)[productID][0], storeString, (price * amount));
 	(*targetVec)[productID][1] = to_string(stoi((*targetVec)[productID][1]) - amount);
+	vectorToFile();
 	waitForInput();
 }
 
