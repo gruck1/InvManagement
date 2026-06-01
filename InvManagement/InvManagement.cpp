@@ -890,24 +890,21 @@ static void purchaseProduct() {
 	productID -= 1;
 	cout << "\nEnter the amount you want to order: ";
 	//cin >> amount;
-	validateInput(amount, 1, stoi((*targetVec)[productID][1]));
+	validateInput(amount, 1);
 
 	priceStr = (*targetVec)[productID][2];
 	erase(priceStr, '$');
 	price = stod(priceStr);
+
 	if (amount > stoi((*targetVec)[productID][1])) {
 		cout << "\nError: not enough stock to order that amount\n\n";
-		waitForInput();
-		return;
-	}
-	else if (amount <= 0) {
-		cout << "\nError: amount must be at least 1\n\n";
 		waitForInput();
 		return;
 	}
 
 	cout << format("\nYou have successfully ordered {} {} from {}'s inventory, costing ${}\n\n", amount, (*targetVec)[productID][0], storeString, (price * amount));
 	(*targetVec)[productID][1] = to_string(stoi((*targetVec)[productID][1]) - amount);
+
 	vectorToFile();
 	waitForInput();
 }
