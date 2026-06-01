@@ -883,6 +883,8 @@ static void purchaseProduct() {
 
 	pickStore();
 	system("cls");
+	cout << "\n";
+
 	viewDetails();
 	cout << "\nEnter the ID of the product you want to order: ";
 	validateInput(productID, 1, (*targetVec).size());
@@ -1067,7 +1069,7 @@ static void program() {
 
 			cout << "1. View Inventory\n2. Order Product\n3. Logout\n4. Delete Account\n5. Exit\n\n";
 			cout << "Select an option: ";
-			validateInput(userChoice, 1, 4);
+			validateInput(userChoice, 1, 5);
 
 			system("cls");
 			cout << "\n";
