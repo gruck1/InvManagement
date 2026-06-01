@@ -485,7 +485,7 @@ static void editingItem(int& max) {
 		validateInput(newMoney);
 		displayNewValue = format("{:.2f}", newMoney);
 	}
-
+	//cout << "shlooby"; we made the right
 	prevItem = (*targetVec)[index][answer];
 	switch (answer) {
 	case 0:
