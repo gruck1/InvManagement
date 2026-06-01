@@ -446,7 +446,7 @@ static void editingItem(int& max) {
 		}
 	}
 	cout << "\nSelect an option: ";
-	if (fileName == "roster.txt") { // since the first item of roster is skipped (the name), we need to take away 1 choice so only a day can be picked
+	if (fileName == "roster.txt") { // since the first item of roster is skiwpped (the name), we need to take away 1 choice so only a day can be picked
 		validateInput(answer, 1, (*targetFormats).size() - 1);
 	}
 	else {
@@ -485,7 +485,7 @@ static void editingItem(int& max) {
 		validateInput(newMoney);
 		displayNewValue = format("{:.2f}", newMoney);
 	}
-	//cout << "shlooby"; we made the right
+	//cout << "shlooby";
 	prevItem = (*targetVec)[index][answer];
 	switch (answer) {
 	case 0:
