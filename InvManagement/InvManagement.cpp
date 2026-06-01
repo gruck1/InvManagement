@@ -81,7 +81,7 @@ static void waitForInput() {
 Changes info to fit correct format so dynamic names can be used.
 Example:
 	fstream file("wellington.txt"); this is hard coded
-	cout << wellington[0][1]; this is also hard coded
+	cout << wellington[0][1]; this is hard coded
 
 	fstream file(fileName); this uses dynamic names
 	cout << (*targetVec)[0][1]; this also uses dynamic names
