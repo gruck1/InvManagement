@@ -898,7 +898,7 @@ static void purchaseProduct() {
 		return;
 	}
 	cout << format("\nYou have successfully ordered {} {} from {}'s inventory, costing ${}\n\n", amount, (*targetVec)[productID][0], storeString, (price * amount));
-	//(*targetVec)[productID][1] = to_string(stoi((*targetVec)[productID][1]) - amount);
+	(*targetVec)[productID][1] = to_string(stoi((*targetVec)[productID][1]) - amount);
 	waitForInput();
 }
 
