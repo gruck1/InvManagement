@@ -38,7 +38,7 @@ vector<vector<string>>* targetVec = &wellington;
 string storeString{}, fileName{}, username{}, password{};;
 
 int storeNum{}, fileInfoNum{};
-bool loggedIn = true, adminAccount = true, lowStockOnly = false;
+bool loggedIn = true, adminAccount = false, lowStockOnly = false;
 
 // Handles invalid input and ranges
 static int validateInput(auto& validator, int lower = -1000000000, int higher = 1000000000) {
@@ -1102,13 +1102,23 @@ static void purchaseProduct() {
 	cout << "\n";
 
 	viewDetails();
+
+	cout << "Type 0 at any point to cancel\n";
+
 	cout << "\nEnter the ID of the product you want to order: ";
-	validateInput(productID, 1, (*targetVec).size());
-	//cin >> productID;
+	validateInput(productID, 0, (*targetVec).size());
+	
+	if (productID == 0) {
+		return;
+	}
+
 	productID -= 1;
 	cout << "\nEnter the amount you want to order: ";
-	//cin >> amount;
-	validateInput(amount, 1);
+	validateInput(amount, 0);
+
+	if (amount == 0) {
+		return;
+	}
 
 	priceStr = (*targetVec)[productID][2];
 	erase(priceStr, '$');
@@ -1120,7 +1130,7 @@ static void purchaseProduct() {
 		return;
 	}
 
-	cout << format("\nYou have successfully ordered {} {} from {}'s inventory, costing ${}\n\n", amount, (*targetVec)[productID][0], storeString, (price * amount));
+	cout << format("\nYou have successfully ordered {} {} from {}'s inventory, costing ${:.2f}\n\n", amount, (*targetVec)[productID][0], storeString, (price * amount));
 	(*targetVec)[productID][1] = to_string(stoi((*targetVec)[productID][1]) - amount);
 
 	vectorToFile();
