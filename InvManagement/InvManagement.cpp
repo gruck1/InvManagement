@@ -267,6 +267,9 @@ static bool confirm(string text) {
 	cout << "\n1. Yes, 2. No: ";
 	validateInput(answer, 1, 2);
 
+	system("cls");
+	cout << "\n";
+
 	if (answer == 1) {
 		return true;
 	}
@@ -280,12 +283,8 @@ static bool confirm(string text) {
 static void pickStore() {
 
 	cout << "1. Wellington\n2. Christchurch\n3. Auckland\n\n";
-	cout << "Please choose a store (type 0 to go back): ";
-	validateInput(storeNum, 0, 3);
-
-	if (storeNum == 0) {
-		return;
-	}
+	cout << "Please choose a store: ";
+	validateInput(storeNum, 1, 3);
 
 	fileInfoNum = storeNum - 1;
 	getFileInfo(storeNum - 1);
@@ -360,22 +359,36 @@ static bool checkItem(string& value, int index) {
 }
 
 
-static void editingRoster(int& index, int& day) {
+static void editingRoster(int& index, int day) {
 
 	int answer{};
 	double startingHoursInt{}, endingHoursInt{};
 	string startingHoursString{}, endingHoursString{}, len{}, prevHours{};
 
-	cout << "1. Assign hours\n2. Clear hours\n3. Back\n\n";
-	cout << "Please choose an option: ";
-	validateInput(answer, 1, 3);
+	if (day != roster[index].size()) {
+		cout << "1. Assign hours to day\n2. Clear hours\n3. Back\n\n";
+		cout << "Please choose an option: ";
+		validateInput(answer, 1, 3);
+	}
+	else {
+		answer = 1;
+	}
+
+	system("cls");
+	cout << "\n";
 
 	switch (answer) {
-	case 1:
+	case 1: {
 
-		cout << "Use 24 hour time format, use a . for minutes e.g. 12.30\n\n";
+		cout << "Use 24 hour time format, use a . for minutes e.g. 12.30\nType 0 in both prompts to cancel\n\n";
 
-		cout << format("Enter starting hours for {}: ", rosterFormats[day]);
+		cout << "Enter starting hours";
+		if (day != roster[index].size()) {
+			cout << format(" for {}: ", rosterFormats[day]);
+		}
+		else {
+			cout << ": ";
+		}
 		validateInput(startingHoursInt, 0, 24);
 
 		len = format("{:.2f}", startingHoursInt);
@@ -388,8 +401,26 @@ static void editingRoster(int& index, int& day) {
 			}
 		}
 
-		cout << format("Enter ending hours for {}: ", rosterFormats[day]);
+		cout << "Enter ending hours";
+		if (day != roster[index].size()) {
+			cout << format(" for {}: ", rosterFormats[day]);
+		}
+		else {
+			cout << ": ";
+		}
 		validateInput(endingHoursInt, startingHoursInt, 24);
+
+		if (startingHoursInt == 0 && endingHoursInt == 0) {
+			cout << "Operation cancelled\n\n";
+			waitForInput();
+			return;
+		}
+
+		if (endingHoursInt - startingHoursInt < 6) {
+			cout << "Error: A minimum of 6 hours are required a day\n\n";
+			waitForInput();
+			return;
+		}
 
 		len = format("{:.2f}", endingHoursInt);
 		for (int i = 0; i < len.length(); i++) {
@@ -401,14 +432,22 @@ static void editingRoster(int& index, int& day) {
 			}
 		}
 
-		prevHours = roster[index][day];
-		roster[index][day] = format("{} - {}", startingHoursString, endingHoursString);
-		vectorToFile();
+		if (day != roster[index].size()) {
+			day = 2;
+		}
 
-		cout << format("Successfully updated {}'s hours from {} to {} on {}\n\n", roster[index][0], prevHours, roster[index][day], rosterFormats[day]);
+		for (int i = 1; i < day; i++) {
+			prevHours = roster[index][i];
+			roster[index][i] = format("{} - {}", startingHoursString, endingHoursString);
+			cout << format("Successfully updated {}'s hours from {} to {} on {}\n", roster[index][0], prevHours, roster[index][i], rosterFormats[i]);
+		}
+		cout << "\n";
+
+		vectorToFile();
 		waitForInput();
 
 		break;
+	}
 
 	case 2:
 
@@ -440,8 +479,13 @@ static void editingItem(int& max) {
 		return;
 	}
 
-	cout << "Pick item by ID: ";
-	validateInput(index, 1, max);
+	cout << "Pick item by ID (type 0 to cancel): ";
+	validateInput(index, 0, max);
+
+	if (index == 0) {
+		return;
+	}
+
 	index -= 1;
 
 	system("cls");
@@ -450,10 +494,16 @@ static void editingItem(int& max) {
 	displayItem = displaySpecificItem(displayItem, index);
 	cout << displayItem;
 
+	int ids{};
+
 	for (int i = 0; i < (*targetFormats).size(); i++) {
+
+		ids++;
+
 		if (fileName == "roster.txt" && i == 0) { // skip being able to edit the name when editing roster, only hours can be edited
 			i++;
 		}
+
 		if (fileName == "roster.txt") { // no need for the "i + 1" here because since the first item (name) is skipped, it can use normal i
 			cout << format("{}. Edit {}\n", i, (*targetFormats)[i]);
 		}
@@ -461,12 +511,19 @@ static void editingItem(int& max) {
 			cout << format("{}. Edit {}\n", i + 1, (*targetFormats)[i]);
 		}
 	}
+
+	cout << format("{}: Back\n", ids + 1);
+
 	cout << "\nSelect an option: ";
-	if (fileName == "roster.txt") { // since the first item of roster is skiwpped (the name), we need to take away 1 choice so only a day can be picked
-		validateInput(answer, 1, (*targetFormats).size() - 1);
+	if (fileName == "roster.txt") { // there is no need for the extra + 1 here because "back" is added as a choice and the first item of each nest in roster is skipped anyway
+		validateInput(answer, 1, (*targetFormats).size());
 	}
 	else {
-		validateInput(answer, 1, (*targetFormats).size());
+		validateInput(answer, 1, (*targetFormats).size() + 1); // since there is an extra option added (back), we need to add one more to the total size
+	}
+
+	if (answer == ids + 1) {
+		return;
 	}
 
 	if (fileName == "roster.txt") {
@@ -476,13 +533,17 @@ static void editingItem(int& max) {
 
 	answer -= 1;
 
-	cout << format("Enter new {}: ", (*targetFormats)[answer]);
+	cout << format("Enter new {} (type 0 to cancel): ", (*targetFormats)[answer]);
 	
 	switch (answer) {
 	case 0:
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		getline(cin, newName);
 		displayNewValue = newName;
+
+		if (newName == "0") {
+			return;
+		}
 
 		if (checkItem(newName, index)) { // Set index to entry ID so the function will overlook the same name so it can actually be changed
 			cout << format("Error: item already exists inside {}\n\n", storeString);
@@ -495,22 +556,45 @@ static void editingItem(int& max) {
 		if (fileName != "employees.txt") { // since inventory uses an integer input (amount) and employees use a string input (role), they need to be separated
 			validateInput(newAmount);
 			displayNewValue = to_string(newAmount);
+
+			if (newAmount == 0) {
+				return;
+			}
 		}
+
 		else {
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			getline(cin, newRole);
 			displayNewValue = newRole;
+
+			if (newRole == "0") {
+				return;
+			}
+
 		}
 		break;
 
 	case 2:
 		validateInput(newMoney);
 		displayNewValue = format("{:.2f}", newMoney);
+
+		if (newMoney < 29.90 && fileName == "employees.txt") {
+			cout << "Error: salary must be equal to or above minimum wage ($29.90)\n\n";
+			waitForInput();
+			return;
+		}
 	}
 	//cout << "shlooby";
 	prevItem = (*targetVec)[index][answer];
 	switch (answer) {
 	case 0:
+
+		if (prevItem == newName) {
+			cout << "Error: New name cannot be the same as old name\n\n";
+			waitForInput();
+			return;
+		}
+
 		(*targetVec)[index][answer] = newName;
 		if (fileName == "employees.txt") { // if the employee name is edited, make sure to update the name in the roster as well
 			for (int i = 0; i < roster.size(); i++) {
@@ -524,14 +608,34 @@ static void editingItem(int& max) {
 
 	case 1:
 		if (fileName != "employees.txt") { // same thing applies here, inventory uses an integer (amount) and employees uses a string (role) so they need to be separated
+
+			if (prevItem == to_string(newAmount)) {
+				cout << "Error: New amount cannot be the same as old amount\n\n";
+				waitForInput();
+				return;
+			}
+
 			(*targetVec)[index][answer] = to_string(newAmount);
 		}
 		else {
+
+			if (prevItem == newRole) {
+				cout << "Error: New role cannot be the same as old role\n\n";
+				waitForInput();
+				return;
+			}
+
 			(*targetVec)[index][answer] = newRole;
 		}
 		break;
 
 	case 2:
+		if (prevItem == format("${:.2f}", newMoney)) {
+			cout << format("Error: New {} cannot be the same as old {}\n\n", (*targetFormats)[answer], (*targetFormats)[answer]);
+			waitForInput();
+			return;
+		}
+
 		(*targetVec)[index][answer] = format("${:.2f}", newMoney);
 	}
 
@@ -574,6 +678,9 @@ static void deleteInventory(int& max) {
 	validateInput(index, 1, max);
 	index -= 1;
 
+	system("cls");
+	cout << "\n";
+
 	if (confirm(format("WARNING: You are about to delete item {} of {}'s inventory\nDo you wish to proceed?\n", index + 1, storeString))) {
 		(*targetVec).erase((*targetVec).begin() + index);
 
@@ -602,6 +709,9 @@ static void deleteEmployee(int& max) {
 	cout << "Choose the ID of the item you want to delete: ";
 	validateInput(index, 1, max);
 	index -= 1;
+
+	system("cls");
+	cout << "\n";
 
 	if (confirm(format("WARNING: You are about to delete item {} from list of employees\nDo you wish to proceed?\n", index + 1, storeString))) {
 		(*targetVec).erase((*targetVec).begin() + index);
@@ -648,12 +758,21 @@ static void addItem() {
 	double price{};
 	fstream file;
 
+	system("cls");
+	cout << "\n";
+
+	cout << "Type 0 at any stage to cancel adding an item\n\n";
+
 	for (int i = 0; i < (*targetFormats).size(); i++) {
 		cout << format("Enter {}: ", (*targetFormats)[i]);
 		switch (i) {
 		case 0:
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			getline(cin, name);
+
+			if (name == "0") {
+				return;
+			}
 
 			if (checkItem(name, (*targetVec).size() + 1)) { // setting index to an impossible value so the function will check every entry and not skip anything
 				cout << format("Error: name already exists inside {}\n\n", storeString);
@@ -664,15 +783,33 @@ static void addItem() {
 
 		case 1:
 			if (fileName != "employees.txt") {
-				validateInput(amount, 1);
+				validateInput(amount, 0);
+
+				if (amount == 0) {
+					return;
+				}
 			}
 			else {
 				getline(cin, role);
+
+				if (role == "0") {
+					return;
+				}
 			}
 			break;
 
 		case 2:
-			validateInput(price, 1);
+			validateInput(price, 0);
+
+			if (price == 0) {
+				return;
+			}
+
+			if (price < 29.90 && fileName == "employees.txt") {
+				cout << "Error: salary must be equal to or above minimum wage ($29.90)\n\n";
+				waitForInput();
+				return;
+			}
 		}
 	}
 
@@ -785,9 +922,12 @@ static void clearHours(int& max) {
 
 	int index{};
 
-	cout << "Input ID of the desired employee: ";
+	cout << "Pick employee by ID: ";
 	validateInput(index, 1, max);
 	index -= 1;
+
+	system("cls");
+	cout << "\n";
 
 	if (confirm(format("WARNING: You are about to clear the entire schedule of employee {}.\nDo you wish to proceed?\n", roster[index][0]))) {
 		for (int i = 1; i < roster[index].size(); i++) {
@@ -809,6 +949,9 @@ static void clearHours(int& max) {
 // Handles setting the entire roster back to "unset" for each employee
 static void clearRoster() {
 
+	system("cls");
+	cout << "\n";
+
 	if (confirm("WARNING: You are about to clear the entire roster. Do you wish to proceed?\n")) {
 		
 		for (int i = 0; i < roster.size(); i++) {
@@ -821,7 +964,7 @@ static void clearRoster() {
 
 		vectorToFile();
 
-		cout << "successfully cleared roster\n\n";
+		cout << "Successfully cleared roster\n\n";
 	}
 	else {
 		cout << "Task cancelled\n\n";
@@ -842,15 +985,18 @@ static void editRoster() {
 
 	while (true) {
 
+		system("cls");
+		cout << "\n";
+
 		fileInfoNum = 5;
 		getFileInfo(5);
 		viewDetails();
 
 		int answer{}, employeeID{}, newAmount{}, index{}, max = roster.size();
 
-		cout << "1. Assign hours to employee\n2. Clear employee's schedule\n3. Clear roster\n4. Back\n\n";
+		cout << "1. Assign hours to employee\n2. Assign hours to employee for all days\n3. Clear employee's schedule\n4. Clear roster\n5. Back\n\n";
 		cout << "Please choose an option: ";
-		validateInput(answer, 1, 4);
+		validateInput(answer, 1, 5);
 
 		switch (answer) {
 		case 1:
@@ -858,14 +1004,28 @@ static void editRoster() {
 			break;
 
 		case 2:
-			clearHours(max);
+
+			cout << "Pick employee by ID (type 0 to go back): ";
+			validateInput(index, 0, roster.size());
+
+			if (index == 0) {
+				break;
+			}
+
+			index--;
+
+			editingRoster(index, roster[index].size());
 			break;
 
 		case 3:
-			clearRoster();
+			clearHours(max);
 			break;
 
 		case 4:
+			clearRoster();
+			break;
+
+		case 5:
 			fileName = "";
 			system("cls");
 			return;

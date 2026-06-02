@@ -1,5 +1,5 @@
 William
-1:00 - 23:00
+unset
 unset
 unset
 unset
@@ -8,11 +8,11 @@ unset
 unset
 
 Daniel
-unset
-unset
-unset
-unset
-unset
-unset
-0:30 - 12:00
+13:00 - 17:30
+13:00 - 17:30
+13:00 - 17:30
+13:00 - 17:30
+13:00 - 17:30
+13:00 - 17:30
+13:00 - 17:30
 
