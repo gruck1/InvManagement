@@ -38,7 +38,7 @@ vector<vector<string>>* targetVec = &wellington;
 string storeString{}, fileName{}, username{}, password{};;
 
 int storeNum{}, fileInfoNum{};
-bool loggedIn = true, adminAccount = false, lowStockOnly = false;
+bool loggedIn = true, adminAccount = true, lowStockOnly = false;
 
 // Handles invalid input and ranges
 static int validateInput(auto& validator, int lower = -1000000000, int higher = 1000000000) {
@@ -280,8 +280,12 @@ static bool confirm(string text) {
 static void pickStore() {
 
 	cout << "1. Wellington\n2. Christchurch\n3. Auckland\n\n";
-	cout << "Please choose a store: ";
-	validateInput(storeNum, 1, 3);
+	cout << "Please choose a store (type 0 to go back): ";
+	validateInput(storeNum, 0, 3);
+
+	if (storeNum == 0) {
+		return;
+	}
 
 	fileInfoNum = storeNum - 1;
 	getFileInfo(storeNum - 1);
@@ -341,6 +345,18 @@ static string displaySpecificItem(string& value, int& index) {
 	value += "\n";
 
 	return value;
+}
+
+// Handles checking for duplicate entries
+static bool checkItem(string& value, int index) {
+
+	for (int i = 0; i < (*targetVec).size(); i++) {
+		if ((*targetVec)[i][0] == value && i != index) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 
@@ -467,6 +483,12 @@ static void editingItem(int& max) {
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		getline(cin, newName);
 		displayNewValue = newName;
+
+		if (checkItem(newName, index)) { // Set index to entry ID so the function will overlook the same name so it can actually be changed
+			cout << format("Error: item already exists inside {}\n\n", storeString);
+			waitForInput();
+			return;
+		}
 		break;
 
 	case 1:
@@ -632,6 +654,12 @@ static void addItem() {
 		case 0:
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			getline(cin, name);
+
+			if (checkItem(name, (*targetVec).size() + 1)) { // setting index to an impossible value so the function will check every entry and not skip anything
+				cout << format("Error: name already exists inside {}\n\n", storeString);
+				waitForInput();
+				return;
+			}
 			break;
 
 		case 1:
