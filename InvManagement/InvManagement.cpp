@@ -391,7 +391,7 @@ static void editingRoster(int& index, int day) {
 		}
 		validateInput(startingHoursInt, 0, 24);
 
-		len = format("{:.2f}", startingHoursInt);
+		len = format("{:05.2f}", startingHoursInt);
 		for (int i = 0; i < len.length(); i++) {
 			if (len[i] == '.') {
 				startingHoursString += ":";
@@ -410,19 +410,7 @@ static void editingRoster(int& index, int day) {
 		}
 		validateInput(endingHoursInt, startingHoursInt, 24);
 
-		if (startingHoursInt == 0 && endingHoursInt == 0) {
-			cout << "Operation cancelled\n\n";
-			waitForInput();
-			return;
-		}
-
-		if (endingHoursInt - startingHoursInt < 6) {
-			cout << "Error: A minimum of 6 hours are required a day\n\n";
-			waitForInput();
-			return;
-		}
-
-		len = format("{:.2f}", endingHoursInt);
+		len = format("{:05.2f}", endingHoursInt);
 		for (int i = 0; i < len.length(); i++) {
 			if (len[i] == '.') {
 				endingHoursString += ":";
@@ -432,9 +420,49 @@ static void editingRoster(int& index, int day) {
 			}
 		}
 
+		if (startingHoursInt == 0 && endingHoursInt == 0) {
+			system("cls");
+			cout << "\nOperation cancelled\n\n";
+			waitForInput();
+			return;
+		}
+
+		/*
+		startingHoursString[3] gets the ASCII index rather than the actual number. 0 is 48 so you can take away 0's ASCII index away from the first index to get the original number.
+		Example:
+			startingHoursString[3] = 54 (6's ASCII index)
+			startingHoursString[4] = 51 (3's ASCII index)
+			54 - 48 = 6 (number we want that represents the 10's collumn of minutes)
+			6 * 10 = 60 (we now have the minutes in the 10's collumn)
+			51 - 48 = 3 (number we want that represents the 1's collumn of minutes)
+			60 + 3 = 63 (exceeds the maximum minutes on a clock)
+			
+		Now we can just check them both in an "if or" clause to see if any of them go over the maximum minutes.
+		If they do, don't accept the input
+		*/ 
+		int startingMinutes = (startingHoursString[3] - '0') * 10 + (startingHoursString[4] - '0'); 
+		int endingMinutes = (endingHoursString[3] - '0') * 10 + (endingHoursString[4] - '0');
+
+		if (startingMinutes >= 60 || endingMinutes >= 60) {
+			system("cls");
+			cout << "\nError: input exceeds 60 minutes\n\n";
+			waitForInput();
+			return;
+		}
+
+		if (endingHoursInt - startingHoursInt < 3) {
+			system("cls");
+			cout << "\nError: a minimum of 3 hours are required a day\n\n";
+			waitForInput();
+			return;
+		}
+
 		if (day != roster[index].size()) {
 			day = 2;
 		}
+
+		system("cls");
+		cout << "\n";
 
 		for (int i = 1; i < day; i++) {
 			prevHours = roster[index][i];
