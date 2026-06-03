@@ -2,7 +2,7 @@ golden apple
 1
 $1000.00
 
-shlooby
+SHLOOBY
 50
 $2.50
 

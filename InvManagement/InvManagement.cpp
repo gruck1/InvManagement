@@ -562,11 +562,28 @@ static void editingItem(int& max) {
 	answer -= 1;
 
 	cout << format("Enter new {} (type 0 to cancel): ", (*targetFormats)[answer]);
-	
+	bool convert = true;
 	switch (answer) {
 	case 0:
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		getline(cin, newName);
+
+		for (char &character : newName) {
+
+			if (isspace(character)) {
+				convert = true;
+			}
+
+			if (convert) {
+				character = toupper(character);
+				convert = false;
+
+			} else if (isupper(character)) {
+				character = tolower(character);
+			}
+
+		}
+
 		displayNewValue = newName;
 
 		if (newName == "0") {
@@ -786,6 +803,7 @@ static void addItem() {
 	string name{}, role{};
 	int amount{};
 	double price{};
+	bool convert = true;
 	fstream file;
 
 	system("cls");
@@ -799,6 +817,23 @@ static void addItem() {
 		case 0:
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			getline(cin, name);
+
+			for (char& character : name) {
+
+				if (isspace(character)) {
+					convert = true;
+				}
+
+				if (convert) {
+					character = toupper(character);
+					convert = false;
+
+				}
+				else if (isupper(character)) {
+					character = tolower(character);
+				}
+
+			}
 
 			if (name == "0") {
 				return;
