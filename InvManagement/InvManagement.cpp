@@ -38,7 +38,7 @@ vector<vector<string>>* targetVec = &wellington;
 string storeString{}, fileName{}, username{}, password{};;
 
 int storeNum{}, fileInfoNum{};
-bool loggedIn = true, adminAccount = false, lowStockOnly = false;
+bool loggedIn = true, adminAccount = true, lowStockOnly = false;
 
 // Handles invalid input and ranges
 static int validateInput(auto& validator, int lower = -1000000000, int higher = 1000000000) {
@@ -493,6 +493,27 @@ static void editingRoster(int& index, int day) {
 	}
 }
 
+static void convertToTitle(string& value) {
+
+	bool convert = true;
+
+	for (char &character : value) {
+
+		if (convert) {
+			// unsigned char is a safety mechanism that stops negative characters (ASCII index)
+			character = static_cast<unsigned char>(toupper(static_cast<unsigned char>(character)));
+			convert = false;
+
+		}
+		else if (isupper(character)) {
+			character = static_cast<unsigned char>(tolower(static_cast<unsigned char>(character)));
+		}
+
+		if (static_cast<unsigned char>(character == ' ')) {
+			convert = true;
+		}
+	}
+}
 
 // Handles the actual editing part of inventories, list of employees, and roster
 static void editingItem(int& max) {
@@ -568,25 +589,17 @@ static void editingItem(int& max) {
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		getline(cin, newName);
 
-		for (char &character : newName) {
-
-			if (isspace(character)) {
-				convert = true;
-			}
-
-			if (convert) {
-				character = toupper(character);
-				convert = false;
-
-			} else if (isupper(character)) {
-				character = tolower(character);
-			}
-
-		}
+		convertToTitle(newName);
 
 		displayNewValue = newName;
 
 		if (newName == "0") {
+			return;
+		}
+
+		if (newName.length() < 3) {
+			cout << "Error: name must be 3 characters or more\n\n";
+			waitForInput();
 			return;
 		}
 
@@ -702,7 +715,7 @@ static void editingItem(int& max) {
 		cout << "\n";
 	}
 
-	cout << format("\nDetails:\n\n{}", displayItem);
+	cout << format("\nDetails,\n{}", displayItem);
 
 	waitForInput();
 
@@ -803,7 +816,6 @@ static void addItem() {
 	string name{}, role{};
 	int amount{};
 	double price{};
-	bool convert = true;
 	fstream file;
 
 	system("cls");
@@ -818,24 +830,15 @@ static void addItem() {
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			getline(cin, name);
 
-			for (char& character : name) {
-
-				if (isspace(character)) {
-					convert = true;
-				}
-
-				if (convert) {
-					character = toupper(character);
-					convert = false;
-
-				}
-				else if (isupper(character)) {
-					character = tolower(character);
-				}
-
-			}
+			convertToTitle(name);
 
 			if (name == "0") {
+				return;
+			}
+
+			if (name.length() < 3) {
+				cout << "Error: name must be 3 characters or more\n\n";
+				waitForInput();
 				return;
 			}
 
