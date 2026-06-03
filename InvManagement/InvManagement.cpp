@@ -358,7 +358,7 @@ static bool checkItem(string& value, int index) {
 	return false;
 }
 
-
+// Handles the actual editing part of the roster
 static void editingRoster(int& index, int day) {
 
 	int answer{};
@@ -724,6 +724,7 @@ static void deleteInventory(int& max) {
 
 }
 
+// Handles deleting employees
 static void deleteEmployee(int& max) {
 
 	int index{};
@@ -756,6 +757,7 @@ static void deleteEmployee(int& max) {
 
 }
 
+// Handles deleting your account
 static void deleteAccount() {
 
 	if (confirm("WARNING: You are about to delete your account. Do you wish to proceed?\n")) {
@@ -907,7 +909,7 @@ static void editInventory() {
 	}
 }
 
-//employee management
+//Handles employee management
 static void editEmployees() {
 
 	while (true) {
@@ -1072,6 +1074,8 @@ static string checkPassword(string& password) {
 		cin >> password;
 		checkPassword(password);
 	}
+
+	// string::npos means target was not found, we can use this to check for any of the following characters
 	while (password.find_first_of("0123456789") == string::npos) {
 		cin.clear();
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -1079,6 +1083,7 @@ static string checkPassword(string& password) {
 		cin >> password;
 		checkPassword(password);
 	}
+
 	while (password.find_first_of("`~!@#$%^&*()_-=+[]{}\\|;:'\"<,.>/?") == string::npos) {
 		cin.clear();
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
