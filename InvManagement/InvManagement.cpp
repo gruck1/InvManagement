@@ -1231,13 +1231,14 @@ static void program() {
 
 		system("cls");
 
-		//log in or sign up
+		// Login or sign up
 		cout << "\n===================Aotearoa Treasures' Inventory Management System===================\n\n";
-		cout << "1. Log in\n2. Sign up\n3. Exit\n\nSelect an option: ";
+		cout << "1. Login\n2. Sign up\n3. View reminders\n4. Exit\n\nSelect an option: ";
 		validateInput(userChoice, 1, 3);
 
 		system("cls");
 		cout << "\n";
+
 		switch (userChoice) {
 		case 1:
 			cout << "Please enter your username (type 0 to cancel): ";
@@ -1307,6 +1308,11 @@ static void program() {
 			break;
 
 		case 3:
+			cout << "Don't forget,\nUsername: admin\nPassword: password\n\n";
+			waitForInput();
+			break;
+
+		case 4:
 			exit(0);
 
 		}
@@ -1320,7 +1326,8 @@ static void program() {
 		cout << "\n===================Aotearoa Treasures' Inventory Management System===================\n\n";
 		if (adminAccount) {
 			cout << "Logged in as admin\n\n";
-			cout << format("1. View and Edit Inventory\n2. View and Edit Employees\n3. Edit Roster\n4. Logout\n5. Toggle \"Low Stock Only\" Mode (Currently {})\n6. Exit", lowStockOnly);
+			cout << "1. View and edit inventory\n2. View and edit employees\n3. View and edit roster\n4. View and edit accounts\n";
+			cout << format("5. Toggle \"low stock only\" mode (currently {})\n6. Logout\n7. Exit", lowStockOnly);
 			cout << "\n\nSelect an option: ";
 			validateInput(userChoice, 1, 6);
 
@@ -1346,12 +1353,7 @@ static void program() {
 				break;
 
 			case 4:
-				loggedIn = false;
-				adminAccount = false;
-				lowStockOnly = false;
 
-				cout << "Successfully logged out\n\n";
-				waitForInput();
 				break;
 
 			case 5:
@@ -1367,6 +1369,15 @@ static void program() {
 				break;
 
 			case 6:
+				loggedIn = false;
+				adminAccount = false;
+				lowStockOnly = false;
+
+				cout << "Successfully logged out\n\n";
+				waitForInput();
+				break;
+
+			case 7:
 				exit(0);
 				break;
 
