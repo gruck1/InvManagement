@@ -5,6 +5,10 @@
 	- You can now edit and delete employees
 	- You can now delete your account when signed in as a non-admin
 	- vectorToFile works now
+
+Reminders
+	- Add displaySpecificItem for purchaseProduct
+	- Add "out of stock" notice if stock is 0
 */
 
 #include <iostream>
