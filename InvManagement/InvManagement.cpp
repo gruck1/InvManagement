@@ -29,6 +29,7 @@ vector<vector<string>> roster = {};
 vector<string> inventoryFormats = { "name", "amount", "price" };
 vector<string> employeeFormats = { "name", "role", "salary" };
 vector<string> rosterFormats = { "name", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+vector<string> accountFormats = { "username", "password", "admin status" };
 
 vector<string>* targetFormats = &inventoryFormats;
 vector<vector<string>>* targetVec = &wellington;
@@ -36,7 +37,7 @@ vector<vector<string>>* targetVec = &wellington;
 string storeString{}, fileName{}, username{}, password{};;
 
 int storeNum{}, fileInfoNum{};
-bool loggedIn = true, adminAccount = false, lowStockOnly = false;
+bool loggedIn = true, adminAccount = true, lowStockOnly = false;
 
 // Formats stuff to commas (1,234,567,890)
 static string commaFormat(auto& value, bool decimals = true) {
@@ -121,6 +122,7 @@ static void getFileInfo(int index) {
 
 	case 3:
 		fileName = "accounts.txt";
+		storeString = "accounts";
 		targetVec = &accounts;
 		break;
 
@@ -135,6 +137,7 @@ static void getFileInfo(int index) {
 		storeString = "roster";
 		targetVec = &roster;
 		break;
+
 	}
 }
 
@@ -515,6 +518,45 @@ static void editingRoster(int& index, int day) {
 	}
 }
 
+static void editingAccounts(int& index, int& value) {
+
+	value--;
+
+	string newValue{}, prevValue = accounts[index][value];
+
+	switch (value) {
+	case 0:
+	case 1:
+		cout << format("Enter new {}: ", (*targetFormats)[value]);
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		getline(cin, newValue);
+
+		if (value == 0) {
+		}
+		else {
+			checkPassword(newValue);
+		}
+
+		accounts[index][value] = newValue;
+		break;
+
+	case 2:
+		cout << accounts[index][2];
+		if (accounts[index][2] == "true") {
+			accounts[index][2] = "false";
+		}
+		else {
+			accounts[index][2] = "true";
+		}
+	}
+
+	vectorToFile();
+
+	cout << format("Successfully updated {}'s {} from {} to {}\n\n", accounts[index][0], (*targetFormats)[value], prevValue, accounts[index][value]);
+	waitForInput();
+
+}
+
 // Converts strings to title case (Hello How Are You)
 static void convertToTitle(string& value) {
 
@@ -576,7 +618,7 @@ static void editingItem(int& max) {
 			i++;
 		}
 
-		if (fileName == "roster.txt") { // no need for the "i + 1" here because since the first item (name) is skipped, it can use normal i
+		if (fileName == "roster.txt") { // no need for the "i + 1" here since the first item (name) is skipped
 			cout << format("{}. Edit {}\n", i, (*targetFormats)[i]);
 		}
 		else {
@@ -602,11 +644,15 @@ static void editingItem(int& max) {
 		editingRoster(index, answer);
 		return;
 	}
+	if (fileName == "accounts.txt") {
+		editingAccounts(index, answer);
+		return;
+	}
 
 	answer -= 1;
 
 	cout << format("Enter new {} (type 0 to cancel): ", (*targetFormats)[answer]);
-	bool convert = true;
+
 	switch (answer) {
 	case 0:
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -744,8 +790,8 @@ static void editingItem(int& max) {
 
 }
 
-// Handles deleting items from the inventories
-static void deleteInventory(int& max) {
+// Handles deleting items
+static void deleteItem(int& max) {
 
 	int index{};
 
@@ -762,45 +808,12 @@ static void deleteInventory(int& max) {
 	system("cls");
 	cout << "\n";
 
-	if (confirm(format("WARNING: You are about to delete item {} of {}'s inventory\nDo you wish to proceed?\n", index + 1, storeString))) {
+	if (confirm(format("WARNING: You are about to delete item {} from {}\nDo you wish to proceed?\n", index + 1, storeString))) {
 		(*targetVec).erase((*targetVec).begin() + index);
 
 		vectorToFile();
 		getFileInfo(fileInfoNum);
-		cout << format("Successfully deleted item {} of {}'s inventory\n\n", index + 1, storeString);
-	}
-	else {
-		cout << "Deletion cancelled\n\n";
-	}
-
-	waitForInput();
-
-}
-
-// Handles deleting employees
-static void deleteEmployee(int& max) {
-
-	int index{};
-
-	if ((*targetVec).size() == 0) {
-		cout << format("There are no items to delete inside {}\n\n", storeString);
-		waitForInput();
-		return;
-	}
-
-	cout << "Choose the ID of the item you want to delete: ";
-	validateInput(index, 1, max);
-	index -= 1;
-
-	system("cls");
-	cout << "\n";
-
-	if (confirm(format("WARNING: You are about to delete item {} from list of employees\nDo you wish to proceed?\n", index + 1, storeString))) {
-		(*targetVec).erase((*targetVec).begin() + index);
-		roster.erase(roster.begin() + index);
-
-		vectorToFile();
-		cout << format("Successfully deleted item {} from list of employees\n\n", index + 1);
+		cout << format("Successfully deleted item {} from {}\n\n", index + 1, storeString);
 	}
 	else {
 		cout << "Deletion cancelled\n\n";
@@ -961,7 +974,7 @@ static void editInventory() {
 			break;
 
 		case 3:
-			deleteInventory(max);
+			deleteItem(max);
 			break;
 
 		case 4:
@@ -982,7 +995,7 @@ static void editEmployees() {
 		getFileInfo(4);
 		viewDetails();
 
-		int answer{}, employeeID{}, newAmount{}, index{}, max = employees.size();
+		int answer{}, max = employees.size();
 
 		cout << "1. Add employee\n2. Edit employee\n3. Delete employee\n4. Back\n\n";
 		cout << "Please choose an option: ";
@@ -998,7 +1011,7 @@ static void editEmployees() {
 			break;
 
 		case 3:
-			deleteEmployee(max);
+			deleteItem(max);
 			break;
 
 		case 4:
@@ -1006,6 +1019,41 @@ static void editEmployees() {
 			return;
 		}
 	}
+}
+
+static void editAccounts() {
+
+	while (true) {
+
+		system("cls");
+		cout << "\n";
+
+		fileInfoNum = 3;
+		getFileInfo(3);
+		viewDetails();
+
+		int answer{}, max = accounts.size();
+
+		cout << "1. Edit account\n2. Delete account\n3. Back\n\n";
+		cout << "Please choose an option: ";
+		validateInput(answer, 1, 3);
+
+		switch (answer) {
+		case 1:
+			editingItem(max);
+			break;
+
+		case 2:
+			deleteItem(max);
+			break;
+			
+		case 3:
+			fileName = "";
+			return;
+		}
+
+	}
+
 }
 
 // Handles setting all hours back to "unset" for one employee
@@ -1353,7 +1401,8 @@ static void program() {
 				break;
 
 			case 4:
-
+				targetFormats = &accountFormats;
+				editAccounts();
 				break;
 
 			case 5:
