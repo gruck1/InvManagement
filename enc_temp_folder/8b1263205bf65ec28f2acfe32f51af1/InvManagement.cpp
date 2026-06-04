@@ -1,6 +1,15 @@
 
 /* Latest changes
-	- Added comma formatting
+	- Almost all admin related interactions are finished now
+	- Combined a bunch of employee editing functions to save space using dynamic formats
+	- You can now edit and delete employees
+	- You can now delete your account when signed in as a non-admin
+	- vectorToFile works now
+
+Reminders
+	- fix lowStockOnly
+	- fix purchaseProduct stock update
+	commas will break everything
 */
 
 #include <iostream>
