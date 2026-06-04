@@ -900,8 +900,8 @@ static void addItem() {
 
 	file.open(fileName, ios::app);
 	if (fileName != "employees.txt") {
-		(*targetVec).push_back({ name, to_string(amount), format("${:.2f}", (price)) });
-		file << format("{}\n{}\n{}\n\n", name, amount, price);
+		(*targetVec).push_back({ name, format("{}", commaFormat(amount, false)), format("${}", commaFormat(amount)) });
+		file << format("{}\n{}\n{}\n\n", name, format("{}", commaFormat(amount, false)), format("${}", commaFormat(price)));
 
 		cout << format("\nSuccessfully added {} to {}'s inventory\n\n", name, storeString);
 	}
