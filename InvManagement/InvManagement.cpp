@@ -302,6 +302,7 @@ static void pickStore() {
 static bool viewDetails() {
 
 	int count{};
+	string amountStr{};
 
 	if ((*targetVec).size() == 0) {
 		cout << format("There are no items inside {}\n\n", storeString);
@@ -309,13 +310,22 @@ static bool viewDetails() {
 	}
 
 	for (int i = 0; i < (*targetVec).size(); i++) {
+
+		amountStr = (*targetVec)[i][1];
+		erase(amountStr, ',');
+
 		if (lowStockOnly == true && (*targetFormats)[1] == "amount") {
-			while (stoi((*targetVec)[i][1]) > 5) {
+
+			while (stoi(amountStr) > 5) {
 				i++;
 				count++;
 
 				if (i == (*targetVec).size()) {
 					break;
+				}
+				else {
+					amountStr = (*targetVec)[i][1];
+					erase(amountStr, ',');
 				}
 			}
 			if (i == (*targetVec).size()) {
@@ -695,7 +705,7 @@ static void editingItem(int& max) {
 				return;
 			}
 
-			(*targetVec)[index][answer] = format("${}", commaFormat(newAmount));
+			(*targetVec)[index][answer] = format("{}", commaFormat(newAmount));
 		}
 		else {
 
@@ -911,7 +921,7 @@ static void addItem() {
 		cout << format("\nSuccessfully added {} to {}'s inventory\n\n", name, storeString);
 	}
 	else {
-		(*targetVec).push_back({ name, role, format("${:.2f}", (price)) });
+		(*targetVec).push_back({ name, role, format("${}", commaFormat(price)) });
 		roster.push_back({ name, "unset", "unset", "unset", "unset", "unset", "unset", "unset", });
 
 		file << format("{}\n{}\n${:.2f}\n\n", name, role, price);
@@ -1155,10 +1165,10 @@ static string checkPassword(string& password) {
 
 }
 
-// user purchasing products
+// Handles purchasing products
 static void purchaseProduct() {
 	int productID{}, amount{};
-	string priceStr{}, displayItem;
+	string priceStr{}, amountStr, displayItem;
 	double price{}, totalPrice{};
 
 	pickStore();
@@ -1194,6 +1204,9 @@ static void purchaseProduct() {
 		return;
 	}
 
+	amountStr = (*targetVec)[productID][1];
+	erase(amountStr, ',');
+
 	priceStr = (*targetVec)[productID][2];
 	erase(priceStr, '$');
 	erase(priceStr, ',');
@@ -1202,15 +1215,15 @@ static void purchaseProduct() {
 	totalPrice = price * amount;
 	priceStr = format("{}", commaFormat(totalPrice));
 
-	(*targetVec)[productID][1] = to_string(stoi((*targetVec)[productID][1]) - amount);
-
-	if (amount > stoi((*targetVec)[productID][1])) {
+	if (amount > stoi(amountStr)) {
 		cout << "\nError: not enough stock to order that amount\n\n";
 		waitForInput();
 		return;
 	}
 
-	cout << format("\nYou have successfully ordered {} {} from {}'s inventory, costing ${}\n\n", amount, (*targetVec)[productID][0], storeString, priceStr);
+	(*targetVec)[productID][1] = to_string(stoi(amountStr) - amount);
+
+	cout << format("\nYou have successfully ordered {} {} from {}'s inventory, costing ${}\n\n", commaFormat(amount), (*targetVec)[productID][0], storeString, commaFormat(priceStr));
 
 	vectorToFile();
 	waitForInput();
