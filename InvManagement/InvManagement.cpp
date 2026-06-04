@@ -8,6 +8,7 @@
 */
 
 #include <iostream>
+#include <sstream>
 #include <format>
 #include <string>
 #include <vector>
@@ -15,6 +16,7 @@
 #include <iomanip>
 #include <filesystem>
 #include <cstdlib>
+#include <locale>
 
 using namespace std;
 using namespace filesystem;
@@ -38,7 +40,7 @@ vector<vector<string>>* targetVec = &wellington;
 string storeString{}, fileName{}, username{}, password{};;
 
 int storeNum{}, fileInfoNum{};
-bool loggedIn = true, adminAccount = true, lowStockOnly = false;
+bool loggedIn = true, adminAccount = false, lowStockOnly = false;
 
 // Handles invalid input and ranges
 static int validateInput(auto& validator, int lower = -1000000000, int higher = 1000000000) {
@@ -493,6 +495,7 @@ static void editingRoster(int& index, int day) {
 	}
 }
 
+// Converts strings to title case (Hello How Are You)
 static void convertToTitle(string& value) {
 
 	bool convert = true;
@@ -513,6 +516,20 @@ static void convertToTitle(string& value) {
 			convert = true;
 		}
 	}
+}
+
+// Formats strings to commas (1,234,567,890)
+static string commaFormat(auto& value, bool decimals = true) {
+	stringstream ss;
+	ss.imbue(locale(""));
+
+	if (decimals) {
+		ss << fixed << setprecision(2) << value;
+	}
+	else {
+		ss << value;
+	}
+	return ss.str();
 }
 
 // Handles the actual editing part of inventories, list of employees, and roster
@@ -613,7 +630,7 @@ static void editingItem(int& max) {
 	case 1:
 		if (fileName != "employees.txt") { // since inventory uses an integer input (amount) and employees use a string input (role), they need to be separated
 			validateInput(newAmount);
-			displayNewValue = to_string(newAmount);
+			displayNewValue = format("{}", commaFormat(newAmount), false);
 
 			if (newAmount == 0) {
 				return;
@@ -634,7 +651,7 @@ static void editingItem(int& max) {
 
 	case 2:
 		validateInput(newMoney);
-		displayNewValue = format("{:.2f}", newMoney);
+		displayNewValue = format("{}", commaFormat(newMoney));
 
 		if (newMoney < 29.90 && fileName == "employees.txt") {
 			cout << "Error: salary must be equal to or above minimum wage ($29.90)\n\n";
@@ -673,7 +690,7 @@ static void editingItem(int& max) {
 				return;
 			}
 
-			(*targetVec)[index][answer] = to_string(newAmount);
+			(*targetVec)[index][answer] = format("${}", commaFormat(newAmount));
 		}
 		else {
 
@@ -694,7 +711,7 @@ static void editingItem(int& max) {
 			return;
 		}
 
-		(*targetVec)[index][answer] = format("${:.2f}", newMoney);
+		(*targetVec)[index][answer] = format("${}", commaFormat(newMoney));
 	}
 
 	vectorToFile();
@@ -1101,7 +1118,6 @@ static void editRoster() {
 	}
 }
 
-
 // Checks if password uses best password practices
 static string checkPassword(string& password) {
 
@@ -1138,7 +1154,7 @@ static string checkPassword(string& password) {
 static void purchaseProduct() {
 	int productID{}, amount{};
 	string priceStr{};
-	double price{};
+	double price{}, totalPrice{};
 
 	pickStore();
 	system("cls");
@@ -1165,7 +1181,11 @@ static void purchaseProduct() {
 
 	priceStr = (*targetVec)[productID][2];
 	erase(priceStr, '$');
+	erase(priceStr, ',');
 	price = stod(priceStr);
+
+	totalPrice = price * amount;
+	priceStr = format("{}", commaFormat(totalPrice));
 
 	if (amount > stoi((*targetVec)[productID][1])) {
 		cout << "\nError: not enough stock to order that amount\n\n";
@@ -1173,14 +1193,12 @@ static void purchaseProduct() {
 		return;
 	}
 
-	cout << format("\nYou have successfully ordered {} {} from {}'s inventory, costing ${:.2f}\n\n", amount, (*targetVec)[productID][0], storeString, (price * amount));
+	cout << format("\nYou have successfully ordered {} {} from {}'s inventory, costing ${}\n\n", amount, (*targetVec)[productID][0], storeString, priceStr);
 	(*targetVec)[productID][1] = to_string(stoi((*targetVec)[productID][1]) - amount);
 
 	vectorToFile();
 	waitForInput();
 }
-
-
 
 // The actual program, this needed to be in its own function so createFiles and fileToVector would only run once
 static void program() {
