@@ -1,12 +1,12 @@
-item1
+Item1
 50
 $20.00
 
-item2
+Item2
 20
 $15.00
 
-item3
+Item3
 3
 $3.00
 

@@ -1,20 +1,20 @@
-item1
+Item1
 50
 $20.00
 
-item2
+Item2
 1
 $15.00
 
-item3
+Item3
 100
 $5.00
 
-the next one
+The Next One
 10
 $3.50
 
 Jayden
-29
+30
 $500.00
 

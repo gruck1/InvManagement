@@ -7,8 +7,9 @@
 	- vectorToFile works now
 
 Reminders
-	- Add displaySpecificItem for purchaseProduct
-	- Add "out of stock" notice if stock is 0
+	- fix lowStockOnly
+	- fix purchaseProduct stock update
+	commas will break everything
 */
 
 #include <iostream>
@@ -340,9 +341,9 @@ static bool viewDetails() {
 }
 
 // Gets the specific item that the user wants to interact with it so it can be used easily
-static string displaySpecificItem(string& value, int& index) {
+static string displaySpecificItem(int& index) {
 
-	value = "";
+	string value = "";
 	value += format("ID: {}\n", index + 1);
 	for (int i = 0; i < (*targetVec)[index].size(); i++) {
 		value += format("{}: {}\n", (*targetFormats)[i], (*targetVec)[index][i]);
@@ -561,7 +562,7 @@ static void editingItem(int& max) {
 	system("cls");
 	cout << "\n";
 
-	displayItem = displaySpecificItem(displayItem, index);
+	displayItem = displaySpecificItem(index);
 	cout << displayItem;
 
 	int ids{};
@@ -720,7 +721,7 @@ static void editingItem(int& max) {
 
 	vectorToFile();
 
-	displayItem = displaySpecificItem(displayItem, index);
+	displayItem = displaySpecificItem(index);
 
 	if (answer == 2) {
 		cout << format("Successfuly changed item {}'s {} from {} to ${}", index + 1, (*targetFormats)[answer], prevItem, displayNewValue);
@@ -1157,7 +1158,7 @@ static string checkPassword(string& password) {
 // user purchasing products
 static void purchaseProduct() {
 	int productID{}, amount{};
-	string priceStr{};
+	string priceStr{}, displayItem;
 	double price{}, totalPrice{};
 
 	pickStore();
@@ -1166,9 +1167,7 @@ static void purchaseProduct() {
 
 	viewDetails();
 
-	cout << "Type 0 at any point to cancel\n";
-
-	cout << "\nEnter the ID of the product you want to order: ";
+	cout << "Enter the ID of the product you want to order (type 0 to cancel): ";
 	validateInput(productID, 0, (*targetVec).size());
 	
 	if (productID == 0) {
@@ -1176,7 +1175,19 @@ static void purchaseProduct() {
 	}
 
 	productID -= 1;
-	cout << "\nEnter the amount you want to order: ";
+
+	displayItem = displaySpecificItem(productID);
+
+	system("cls");
+	cout << "\n";
+
+	if ((*targetVec)[productID][1] == "0") {
+		cout << "This item has no stock. Please choose another\n\n";
+		waitForInput();
+		return;
+	}
+
+	cout << format("{}Enter the amount you want to order (type 0 to cancel): ", displayItem);
 	validateInput(amount, 0);
 
 	if (amount == 0) {
@@ -1191,6 +1202,8 @@ static void purchaseProduct() {
 	totalPrice = price * amount;
 	priceStr = format("{}", commaFormat(totalPrice));
 
+	(*targetVec)[productID][1] = to_string(stoi((*targetVec)[productID][1]) - amount);
+
 	if (amount > stoi((*targetVec)[productID][1])) {
 		cout << "\nError: not enough stock to order that amount\n\n";
 		waitForInput();
@@ -1198,7 +1211,6 @@ static void purchaseProduct() {
 	}
 
 	cout << format("\nYou have successfully ordered {} {} from {}'s inventory, costing ${}\n\n", amount, (*targetVec)[productID][0], storeString, priceStr);
-	(*targetVec)[productID][1] = to_string(stoi((*targetVec)[productID][1]) - amount);
 
 	vectorToFile();
 	waitForInput();

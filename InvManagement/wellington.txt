@@ -1,12 +1,12 @@
-golden apple
+Golden Apple
 1
-$1000.00
+$2,000.00
 
-SHLOOBY
-50
+Shlooby
+1,000
 $2.50
 
-huzz
+Huzz
 0
 $2,599,999.62
 
