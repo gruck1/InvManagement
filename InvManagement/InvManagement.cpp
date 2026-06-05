@@ -34,10 +34,10 @@ vector<string> accountFormats = { "username", "password", "admin status" };
 vector<string>* targetFormats = &inventoryFormats;
 vector<vector<string>>* targetVec = &wellington;
 
-string storeString{}, fileName{}, username{}, password{};;
+string storeString{}, fileName{}, username{}, password{};
 
 int storeNum{}, fileInfoNum{};
-bool loggedIn = true, adminAccount = true, lowStockOnly = false;
+bool loggedIn = false, adminAccount = false, lowStockOnly = false;
 
 // Formats stuff to commas (1,234,567,890)
 static string commaFormat(auto& value, bool decimals = true) {
@@ -383,6 +383,51 @@ static bool checkItem(string& value, int index) {
 	return false;
 }
 
+// Checks if password uses best password practices
+static void checkPassword(string& value) {
+
+	while (value.length() < 12) {
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "Error: password must be over 12 characters. Try again: ";
+		cin >> value;
+
+		if (value == "0") {
+			return;
+		}
+
+		checkPassword(value);
+	}
+
+	// string::npos means target was not found, we can use this to check for any of the following characters
+	while (value.find_first_of("0123456789") == string::npos) {
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "Error: password must contain at least one number. Try again: ";
+		cin >> value;
+
+		if (value == "0") {
+			return;
+		}
+
+		checkPassword(value);
+	}
+
+	while (value.find_first_of("`~!@#$%^&*()_-=+[]{}\\|;:'\"<,.>/?") == string::npos) {
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "Error: password must contain at least one special character. Try again: ";
+		cin >> value;
+
+		if (value == "0") {
+			return;
+		}
+
+		checkPassword(value);
+	}
+
+}
+
 // Handles the actual editing part of the roster
 static void editingRoster(int& index, int day) {
 
@@ -527,21 +572,55 @@ static void editingAccounts(int& index, int& value) {
 	switch (value) {
 	case 0:
 	case 1:
-		cout << format("Enter new {}: ", (*targetFormats)[value]);
+		cout << format("Enter new {} (type 0 to go back): ", (*targetFormats)[value]);
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		getline(cin, newValue);
+		cin >> newValue;
+
+		if (newValue == "0") {
+			return;
+		}
 
 		if (value == 0) {
+			if (username.length() < 5) {
+				cout << "Error: username must be over 5 characters\n\n";
+				waitForInput();
+				return;
+			}
+
+			if (checkLogin(username, password, "create")) {
+				cout << "Error: username already exists. Please pick a different one\n\n";
+				waitForInput();
+				return;
+			}
+
+			if (accounts[index][0] == username) {
+				username = newValue;
+			}
+
 		}
 		else {
 			checkPassword(newValue);
+
+			if (newValue == "0") {
+				return;
+			}
+
+			if (accounts[index][1] == password) {
+				password = newValue;
+			}
 		}
 
 		accounts[index][value] = newValue;
 		break;
 
 	case 2:
-		cout << accounts[index][2];
+
+		if (accounts[index][0] == username) {
+			cout << format("Error: cannot update this value for account {} while logged in as same account\n\n", accounts[index][0]);
+			waitForInput();
+			return;
+		}
+
 		if (accounts[index][2] == "true") {
 			accounts[index][2] = "false";
 		}
@@ -604,6 +683,12 @@ static void editingItem(int& max) {
 
 	system("cls");
 	cout << "\n";
+
+	if (index == 0 && fileName == "accounts.txt") {
+		cout << "Error: unable to edit this account\n\n";
+		waitForInput();
+		return;
+	}
 
 	displayItem = displaySpecificItem(index);
 	cout << displayItem;
@@ -808,7 +893,19 @@ static void deleteItem(int& max) {
 	system("cls");
 	cout << "\n";
 
+	if (index == 0 && fileName == "accounts.txt") {
+		cout << "Error: unable to delete this account\n\n";
+		waitForInput();
+		return;
+	}
+
 	if (confirm(format("WARNING: You are about to delete item {} from {}\nDo you wish to proceed?\n", index + 1, storeString))) {
+
+		if ((*targetVec)[index][0] == username) {
+			loggedIn = false;
+			adminAccount = false;
+		}
+
 		(*targetVec).erase((*targetVec).begin() + index);
 
 		vectorToFile();
@@ -820,6 +917,7 @@ static void deleteItem(int& max) {
 	}
 
 	waitForInput();
+
 
 }
 
@@ -1028,12 +1126,17 @@ static void editAccounts() {
 		system("cls");
 		cout << "\n";
 
+		if (!loggedIn) {
+			return;
+		}
+
 		fileInfoNum = 3;
 		getFileInfo(3);
 		viewDetails();
 
 		int answer{}, max = accounts.size();
 
+		cout << format("You are signed in as {}\n\n", username);
 		cout << "1. Edit account\n2. Delete account\n3. Back\n\n";
 		cout << "Please choose an option: ";
 		validateInput(answer, 1, 3);
@@ -1172,38 +1275,6 @@ static void editRoster() {
 	}
 }
 
-// Checks if password uses best password practices
-static string checkPassword(string& password) {
-
-	while (password.length() < 12) {
-		cin.clear();
-		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		cout << "Error: password must be over 12 characters. Try again: ";
-		cin >> password;
-		checkPassword(password);
-	}
-
-	// string::npos means target was not found, we can use this to check for any of the following characters
-	while (password.find_first_of("0123456789") == string::npos) {
-		cin.clear();
-		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		cout << "Error: password must contain at least one number. Try again: ";
-		cin >> password;
-		checkPassword(password);
-	}
-
-	while (password.find_first_of("`~!@#$%^&*()_-=+[]{}\\|;:'\"<,.>/?") == string::npos) {
-		cin.clear();
-		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		cout << "Error: password must contain at least one special character. Try again: ";
-		cin >> password;
-		checkPassword(password);
-	}
-
-	return password;
-
-}
-
 // Handles purchasing products
 static void purchaseProduct() {
 	int productID{}, amount{};
@@ -1282,7 +1353,7 @@ static void program() {
 		// Login or sign up
 		cout << "\n===================Aotearoa Treasures' Inventory Management System===================\n\n";
 		cout << "1. Login\n2. Sign up\n3. View reminders\n4. Exit\n\nSelect an option: ";
-		validateInput(userChoice, 1, 3);
+		validateInput(userChoice, 1, 4);
 
 		system("cls");
 		cout << "\n";
@@ -1377,7 +1448,7 @@ static void program() {
 			cout << "1. View and edit inventory\n2. View and edit employees\n3. View and edit roster\n4. View and edit accounts\n";
 			cout << format("5. Toggle \"low stock only\" mode (currently {})\n6. Logout\n7. Exit", lowStockOnly);
 			cout << "\n\nSelect an option: ";
-			validateInput(userChoice, 1, 6);
+			validateInput(userChoice, 1, 7);
 
 			system("cls");
 			cout << "\n";

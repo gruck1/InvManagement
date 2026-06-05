@@ -1,14 +1,10 @@
 admin
-shlooby
+password
 true
 
 shlooby
 dompus
-false
-
-tester
-test
-false
+true
 
 hello
 hellothere123!
