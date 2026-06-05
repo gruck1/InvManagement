@@ -1,9 +1,9 @@
 Golden Apple
-0
+25
 $2,000.00
 
 Shlooby
-0
+1,000
 $2.50
 
 Huzz

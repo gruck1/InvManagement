@@ -392,11 +392,17 @@ static void checkPassword(string& value) {
 		cout << "Error: password must be over 12 characters. Try again: ";
 		cin >> value;
 
+		// Since checkPassword is called inside checkPassword, one return doesn't stop all the functions previously called
 		if (value == "0") {
 			return;
 		}
 
 		checkPassword(value);
+
+		// This is why after checkPassword returns, we need to check for the value that has been modified
+		if (value == "0") {
+			return;
+		}
 	}
 
 	// string::npos means target was not found, we can use this to check for any of the following characters
@@ -411,6 +417,10 @@ static void checkPassword(string& value) {
 		}
 
 		checkPassword(value);
+
+		if (value == "0") {
+			return;
+		}
 	}
 
 	while (value.find_first_of("`~!@#$%^&*()_-=+[]{}\\|;:'\"<,.>/?") == string::npos) {
@@ -424,6 +434,10 @@ static void checkPassword(string& value) {
 		}
 
 		checkPassword(value);
+
+		if (value == "0") {
+			return;
+		}
 	}
 
 }
@@ -450,7 +464,7 @@ static void editingRoster(int& index, int day) {
 	switch (answer) {
 	case 1: {
 
-		cout << "Use 24 hour time format, use a . for minutes e.g. 12.30\nType 0 in both prompts to cancel\n\n";
+		cout << "Use 24 hour time format, use a . for minutes e.g. 12.30\nAnything over 2 decimals will round\nType 0 in both prompts to cancel\n\n";
 
 		cout << "Enter starting hours";
 		if (day != roster[index].size()) {
@@ -572,7 +586,7 @@ static void editingAccounts(int& index, int& value) {
 	switch (value) {
 	case 0:
 	case 1:
-		cout << format("Enter new {} (type 0 to go back): ", (*targetFormats)[value]);
+		cout << format("Enter new {} (type 0 to cancel): ", (*targetFormats)[value]);
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		cin >> newValue;
 
@@ -581,13 +595,13 @@ static void editingAccounts(int& index, int& value) {
 		}
 
 		if (value == 0) {
-			if (username.length() < 5) {
+			if (newValue.length() < 5) {
 				cout << "Error: username must be over 5 characters\n\n";
 				waitForInput();
 				return;
 			}
 
-			if (checkLogin(username, password, "create")) {
+			if (checkLogin(newValue, password, "create")) {
 				cout << "Error: username already exists. Please pick a different one\n\n";
 				waitForInput();
 				return;
@@ -602,6 +616,12 @@ static void editingAccounts(int& index, int& value) {
 			checkPassword(newValue);
 
 			if (newValue == "0") {
+				return;
+			}
+
+			if (accounts[index][1] == newValue) {
+				cout << "Error: password cannot be the same as old one\n\n";
+				waitForInput();
 				return;
 			}
 
@@ -631,7 +651,7 @@ static void editingAccounts(int& index, int& value) {
 
 	vectorToFile();
 
-	cout << format("Successfully updated {}'s {} from {} to {}\n\n", accounts[index][0], (*targetFormats)[value], prevValue, accounts[index][value]);
+	cout << format("Successfully updated account {}'s {} from {} to {}\n\n", index + 1, (*targetFormats)[value], prevValue, accounts[index][value]);
 	waitForInput();
 
 }
@@ -742,9 +762,7 @@ static void editingItem(int& max) {
 	case 0:
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		getline(cin, newName);
-
 		convertToTitle(newName);
-
 		displayNewValue = newName;
 
 		if (newName == "0") {
@@ -777,6 +795,7 @@ static void editingItem(int& max) {
 		else {
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			getline(cin, newRole);
+			convertToTitle(newRole);
 			displayNewValue = newRole;
 
 			if (newRole == "0") {
@@ -886,7 +905,7 @@ static void deleteItem(int& max) {
 		return;
 	}
 
-	cout << "Choose the ID of the item you want to delete (type 0 to go back): ";
+	cout << "Choose the ID of the item you want to delete (type 0 to cancel): ";
 	validateInput(index, 0, max);
 
 	if (index == 0) {
@@ -912,6 +931,10 @@ static void deleteItem(int& max) {
 		}
 
 		(*targetVec).erase((*targetVec).begin() + index);
+
+		if (fileName == "employees.txt") {
+			roster.erase(roster.begin() + index);
+		}
 
 		vectorToFile();
 		getFileInfo(fileInfoNum);
@@ -1022,7 +1045,7 @@ static void addItem() {
 
 	file.open(fileName, ios::app);
 	if (fileName != "employees.txt") {
-		(*targetVec).push_back({ name, format("{}", commaFormat(amount, false)), format("${}", commaFormat(amount)) });
+		(*targetVec).push_back({ name, format("{}", commaFormat(amount, false)), format("${}", commaFormat(price)) });
 		file << format("{}\n{}\n{}\n\n", name, format("{}", commaFormat(amount, false)), format("${}", commaFormat(price)));
 
 		cout << format("\nSuccessfully added {} to {}'s inventory\n\n", name, storeString);
@@ -1252,7 +1275,7 @@ static void editRoster() {
 
 		case 2:
 
-			cout << "Pick employee by ID (type 0 to go back): ";
+			cout << "Pick employee by ID (type 0 to cancel): ";
 			validateInput(index, 0, roster.size());
 
 			if (index == 0) {
@@ -1344,6 +1367,44 @@ static void purchaseProduct() {
 	waitForInput();
 }
 
+static void editAccountDetails() {
+
+	fileInfoNum = 3;
+	getFileInfo(3);
+
+	while (true) {
+
+		system("cls");
+		cout << "\n";
+
+		int index = 0, answer{};
+		string displayDetails{}, prevValue{}, newValue{};
+
+		for (index; index < accounts.size(); index++) {
+			if (username == accounts[index][0]) {
+				break;
+			}
+		}
+
+		displayDetails = displaySpecificItem(index);
+
+		cout << displayDetails;
+		cout << "1. Edit username\n2. Edit password\n3. Back\n\n";
+		cout << "Please choose an option: ";
+		validateInput(answer, 1, 3);
+		
+		switch (answer) {
+		case 1:
+		case 2:
+			editingAccounts(index, answer);
+			break;
+
+		case 3:
+			return;
+		}
+	}
+}
+
 // The actual program, this needed to be in its own function so createFiles and fileToVector would only run once
 static void program() {
 
@@ -1392,7 +1453,7 @@ static void program() {
 			//add new account to list of accounts and export to text file
 		case 2:
 
-			cout << "Please choose a username (type 0 to go back): ";
+			cout << "Please choose a username (type 0 to cancel): ";
 			cin >> username;
 			if (username == "0") {
 				break;
@@ -1412,13 +1473,17 @@ static void program() {
 
 			//check password security
 			cout << "Please enter a password - password must be over 12 characters,\ncontain at least one number, and one special character ";
-			cout << "(type 0 to go back): ";
+			cout << "(type 0 to cancel): ";
 			cin >> password;
 			if (password == "0") {
 				break;
 			}
 
 			checkPassword(password);
+
+			if (password == "0") {
+				break;
+			}
 
 			//save username and password without admin access
 			accounts.push_back({ username, password, "false" });
@@ -1510,9 +1575,9 @@ static void program() {
 		}
 		else {
 
-			cout << "1. View Inventory\n2. Order Product\n3. Logout\n4. Delete Account\n5. Exit\n\n";
+			cout << "1. View Inventory\n2. Order Product\n3. Edit account details\n4. Logout\n5. Delete Account\n6. Exit\n\n";
 			cout << "Select an option: ";
-			validateInput(userChoice, 1, 5);
+			validateInput(userChoice, 1, 6);
 
 			system("cls");
 			cout << "\n";
@@ -1531,16 +1596,21 @@ static void program() {
 				break;
 
 			case 3:
+				targetFormats = &accountFormats;
+				editAccountDetails();
+				break;
+
+			case 4:
 				loggedIn = false;
 				cout << "Successfully logged out\n\n";
 				waitForInput();
 				break;
 
-			case 4:
+			case 5:
 				deleteAccount();
 				break;
 
-			case 5:
+			case 6:
 				exit(0);
 			}
 		}
