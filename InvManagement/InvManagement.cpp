@@ -886,8 +886,13 @@ static void deleteItem(int& max) {
 		return;
 	}
 
-	cout << "Choose the ID of the item you want to delete: ";
-	validateInput(index, 1, max);
+	cout << "Choose the ID of the item you want to delete (type 0 to go back): ";
+	validateInput(index, 0, max);
+
+	if (index == 0) {
+		return;
+	}
+
 	index -= 1;
 
 	system("cls");
