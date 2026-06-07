@@ -31,6 +31,7 @@ vector<string> employeeFormats = { "name", "role", "salary" };
 vector<string> rosterFormats = { "name", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 vector<string> accountFormats = { "username", "password", "admin status" };
 
+vector<vector<string>> validEntries = {};
 vector<string>* targetFormats = &inventoryFormats;
 vector<vector<string>>* targetVec = &wellington;
 
@@ -311,6 +312,7 @@ static bool viewDetails() {
 
 	int count{};
 	string amountStr{};
+	validEntries = {};
 
 	if ((*targetVec).size() == 0) {
 		cout << format("There are no items inside {}\n\n", storeString);
@@ -322,33 +324,24 @@ static bool viewDetails() {
 		amountStr = (*targetVec)[i][1];
 		erase(amountStr, ',');
 
-		if (lowStockOnly == true && (*targetFormats)[1] == "amount") {
-
-			while (stoi(amountStr) > 5) {
-				i++;
-				count++;
-
-				if (i == (*targetVec).size()) {
-					break;
-				}
-				else {
-					amountStr = (*targetVec)[i][1];
-					erase(amountStr, ',');
-				}
-			}
-			if (i == (*targetVec).size()) {
-				break;
-			}
+		if (lowStockOnly == true && stoi(amountStr) > 5) {
+			continue;
 		}
+		else {
+			validEntries.push_back({ (*targetVec)[i][0], (*targetVec)[i][1], (*targetVec)[i][2] });
+		}
+	}
 
+	for (int i = 0; i < validEntries.size(); i++) {
 		cout << format("ID {}\n", i + 1);
-		for (int j = 0; j < (*targetVec)[i].size(); j++) {
-			cout << format("{}: {}\n", (*targetFormats)[j], (*targetVec)[i][j]);
+
+		for (int j = 0; j < validEntries[i].size(); j++) {
+			cout << format("{}: {}\n", (*targetFormats)[j], validEntries[i][j]);
 		}
 		cout << "\n";
 	}
 
-	if (count == (*targetVec).size()) {
+	if (validEntries.size() == 0) {
 		cout << format("There are no items under 5 stock inside {}\n\n", storeString);
 		waitForInput();
 		return false;
@@ -1088,7 +1081,7 @@ static void editInventory() {
 		cout << "Please choose an option: ";
 		validateInput(answer, 1, 4);
 
-		max = (*targetVec).size();
+		max = validEntries.size();
 
 		switch (answer) {
 		case 1:
