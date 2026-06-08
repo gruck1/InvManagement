@@ -324,11 +324,12 @@ static bool viewDetails() {
 		amountStr = (*targetVec)[i][1];
 		erase(amountStr, ',');
 
-		if (lowStockOnly == true && stoi(amountStr) > 5) {
+		if (lowStockOnly == true && stoi(amountStr) > 5 && (*targetFormats)[1] == "amount") {
 			continue;
 		}
 		else {
 			validEntries.push_back({ (*targetVec)[i][0], (*targetVec)[i][1], (*targetVec)[i][2] });
+			// CHANGE THIS
 		}
 	}
 
