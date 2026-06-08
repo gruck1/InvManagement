@@ -173,7 +173,6 @@ static void fileToVector() {
 			while (getline(file, line)) {
 				maxLine++;
 			}
-			// maxLine -= 1;
 
 			targetVec->push_back({});
 
@@ -577,6 +576,7 @@ static void editingRoster(int& index, int day) {
 	}
 }
 
+// Handles editing accounts as admin
 static void editingAccounts(int& index, int& value) {
 
 	value--;
@@ -1147,6 +1147,7 @@ static void editEmployees() {
 	}
 }
 
+// Handles the menu for editing accounts
 static void editAccounts() {
 
 	while (true) {
@@ -1367,6 +1368,7 @@ static void purchaseProduct() {
 	waitForInput();
 }
 
+// Handles editing the account currently logged in
 static void editAccountDetails() {
 
 	fileInfoNum = 3;
@@ -1425,6 +1427,8 @@ static void program() {
 		cout << "\n";
 
 		switch (userChoice) {
+
+		// Enter created account details to login
 		case 1:
 			cout << "Please enter your username (type 0 to cancel): ";
 			cin >> username;
@@ -1450,7 +1454,8 @@ static void program() {
 			}
 
 			break;
-			//add new account to list of accounts and export to text file
+
+		// Add new account to list of accounts and export to text file
 		case 2:
 
 			cout << "Please choose a username (type 0 to cancel): ";
