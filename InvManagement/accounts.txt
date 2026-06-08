@@ -6,7 +6,3 @@ shlooby
 dompus
 false
 
-Shnewbert
-holyfuckingpassword123!
-false
-
