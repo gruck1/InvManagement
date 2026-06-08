@@ -392,13 +392,14 @@ static void checkPassword(string& value) {
 		cin >> value;
 
 		// Since checkPassword is called inside checkPassword, one return doesn't stop all the functions previously called
+		// This is why after checkPassword returns, we need to check if the modified value is 0 in order to return again
+		// This creates a cycle of returns that will return all functions
 		if (value == "0") {
 			return;
 		}
 
 		checkPassword(value);
 
-		// This is why after checkPassword returns, we need to check for the value that has been modified
 		if (value == "0") {
 			return;
 		}

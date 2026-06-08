@@ -1,5 +1,5 @@
 Golden Apple
-0
+25
 $2,000.00
 
 Shlooby
@@ -7,7 +7,7 @@ Shlooby
 $2.50
 
 Huzz
-2,500
+5
 $2,599,999.62
 
 Doobie
