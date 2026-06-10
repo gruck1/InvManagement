@@ -440,6 +440,23 @@ static void checkPassword(string& value) {
 		}
 	}
 
+	while (value.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz") == string::npos) {
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "Error: password must contain at least one letter. Try again: ";
+		cin >> value;
+
+		if (value == "0") {
+			return;
+		}
+
+		checkPassword(value);
+
+		if (value == "0") {
+			return;
+		}
+	}
+
 }
 
 // Handles the actual editing part of the roster
@@ -466,9 +483,9 @@ static void editingRoster(int& index, int day) {
 
 		cout << "Use 24 hour time format, use a . for minutes e.g. 12.30\nAnything over 2 decimals will round\nType 0 in both prompts to cancel\n\n";
 
-		cout << "Enter starting hours";
+		cout << format("Enter starting hours for {}", roster[index][0]);
 		if (day != roster[index].size()) {
-			cout << format(" for {}: ", rosterFormats[day]);
+			cout << format(" on {}: ", rosterFormats[day]);
 		}
 		else {
 			cout << ": ";
@@ -485,9 +502,9 @@ static void editingRoster(int& index, int day) {
 			}
 		}
 
-		cout << "Enter ending hours";
+		cout << format("Enter ending hours for {}", roster[index][0]);
 		if (day != roster[index].size()) {
-			cout << format(" for {}: ", rosterFormats[day]);
+			cout << format(" on {}: ", rosterFormats[day]);
 		}
 		else {
 			cout << ": ";
@@ -596,10 +613,15 @@ static void editingAccounts(int& index, int& value) {
 		}
 
 		if (value == 0) {
-			if (newValue.length() < 5) {
-				cout << "Error: username must be over 5 characters\n\n";
-				waitForInput();
-				return;
+			while (newValue.length() < 5) {
+				cin.clear();
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				cout << "Error: username must be over 5 characters. Please try again: ";
+				cin >> newValue;
+				
+				if (newValue == "0") {
+					return;
+				}
 			}
 
 			if (checkLogin(newValue, password, "create")) {
@@ -1461,14 +1483,24 @@ static void program() {
 
 			cout << "Please choose a username (type 0 to cancel): ";
 			cin >> username;
+
 			if (username == "0") {
 				break;
 			}
 
-			if (username.length() < 5) {
-				cout << "Error: username must be over 5 characters\n\n";
-				waitForInput();
-				continue;
+			while (username.length() < 5) {
+				cin.clear();
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				cout << "Error: username must be over 5 characters. Please try again: ";
+				cin >> username;
+
+				if (username == "0") {
+					break;
+				}
+			}
+
+			if (username == "0") {
+				break;
 			}
 
 			if (checkLogin(username, password, "create")) {
