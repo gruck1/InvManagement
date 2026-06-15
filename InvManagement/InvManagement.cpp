@@ -1585,7 +1585,6 @@ static void program() {
 				break;
 
 			case 4:
-				//targetFormats = &accountFormats;
 				editAccounts();
 				break;
 
