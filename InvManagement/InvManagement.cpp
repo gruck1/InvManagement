@@ -106,36 +106,42 @@ static void getFileInfo(int index) {
 		fileName = "wellington.txt";
 		storeString = "Wellington";
 		targetVec = &wellington;
+		targetFormats = &inventoryFormats;
 		break;
 
 	case 1:
 		fileName = "christchurch.txt";
 		storeString = "Christchurch";
 		targetVec = &christchurch;
+		targetFormats = &inventoryFormats;
 		break;
 
 	case 2:
 		fileName = "auckland.txt";
 		storeString = "Auckland";
 		targetVec = &auckland;
+		targetFormats = &inventoryFormats;
 		break;
 
 	case 3:
 		fileName = "accounts.txt";
 		storeString = "accounts";
 		targetVec = &accounts;
+		targetFormats = &accountFormats;
 		break;
 
 	case 4:
 		fileName = "employees.txt";
 		storeString = "employees";
 		targetVec = &employees;
+		targetFormats = &employeeFormats;
 		break;
 
 	case 5:
 		fileName = "roster.txt";
 		storeString = "roster";
 		targetVec = &roster;
+		targetFormats = &rosterFormats;
 		break;
 
 	}
@@ -1383,7 +1389,8 @@ static void purchaseProduct() {
 		return;
 	}
 
-	(*targetVec)[productID][1] = to_string(stoi(amountStr) - amount);
+	int newAmount = stoi(amountStr) - amount;
+	(*targetVec)[productID][1] = format("{}", commaFormat(newAmount));
 
 	cout << format("\nYou have successfully ordered {} {} from {}'s inventory, costing ${}\n\n", commaFormat(amount), (*targetVec)[productID][0], storeString, commaFormat(priceStr));
 
@@ -1425,6 +1432,7 @@ static void editAccountDetails() {
 			break;
 
 		case 3:
+			fileName = "";
 			return;
 		}
 	}
@@ -1563,24 +1571,21 @@ static void program() {
 			switch (userChoice) {
 			case 1:
 				// View and edit all inventories
-				targetFormats = &inventoryFormats;
 				editInventory();
 				break;
 
 			case 2:
 				// add and delete employees from the account's vector, then export the vector to the text file
-				targetFormats = &employeeFormats;
 				editEmployees();
 				break;
 
 			case 3:
 				// add and delete shifts from the roster vector, then export the vector to the text file
-				targetFormats = &rosterFormats;
 				editRoster();
 				break;
 
 			case 4:
-				targetFormats = &accountFormats;
+				//targetFormats = &accountFormats;
 				editAccounts();
 				break;
 
@@ -1634,7 +1639,6 @@ static void program() {
 				break;
 
 			case 3:
-				targetFormats = &accountFormats;
 				editAccountDetails();
 				break;
 
