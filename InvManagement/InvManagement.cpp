@@ -348,7 +348,11 @@ static bool viewDetails() {
 
 		cout << format("ID {}\n", i + 1);
 		for (int j = 0; j < (*targetVec)[i].size(); j++) {
-			cout << format("{}: {}\n", (*targetFormats)[j], (*targetVec)[i][j]);
+
+			string titleFormat = (*targetFormats)[j];
+			titleFormat[0] = toupper(titleFormat[0]);
+
+			cout << format("{}: {}\n", titleFormat, (*targetVec)[i][j]);
 		}
 		cout << "\n";
 	}
@@ -369,7 +373,11 @@ static string displaySpecificItem(int& index) {
 	string value = "";
 	value += format("ID: {}\n", index + 1);
 	for (int i = 0; i < (*targetVec)[index].size(); i++) {
-		value += format("{}: {}\n", (*targetFormats)[i], (*targetVec)[index][i]);
+
+		string titleFormat = (*targetFormats)[i];
+		titleFormat[0] = toupper(titleFormat[0]);
+
+		value += format("{}: {}\n", titleFormat, (*targetVec)[index][i]);
 	}
 	value += "\n";
 
