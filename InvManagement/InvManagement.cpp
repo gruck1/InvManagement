@@ -863,7 +863,7 @@ static void editingItem(int& max) {
 			return;
 		}
 	}
-	//cout << "shlooby";
+
 	prevItem = (*targetVec)[index][answer];
 	switch (answer) {
 	case 0:
@@ -909,8 +909,8 @@ static void editingItem(int& max) {
 		break;
 
 	case 2:
-		if (prevItem == format("${:.2f}", newMoney)) {
-			cout << format("Error: New {} cannot be the same as old {}\n\n", (*targetFormats)[answer], (*targetFormats)[answer]);
+		if (prevItem == format("${}", displayNewValue)) {
+			cout << format("Error: New {} cannot be the same as old one\n\n", (*targetFormats)[answer]);
 			waitForInput();
 			return;
 		}
@@ -923,10 +923,10 @@ static void editingItem(int& max) {
 	displayItem = displaySpecificItem(index);
 
 	if (answer == 2) {
-		cout << format("Successfuly changed item {}'s {} from {} to ${}", index + 1, (*targetFormats)[answer], prevItem, displayNewValue);
+		cout << format("Successfully changed item {}'s {} from {} to ${}", index + 1, (*targetFormats)[answer], prevItem, displayNewValue);
 	}
 	else {
-		cout << format("Successfuly changed item {}'s {} from {} to {}", index + 1, (*targetFormats)[answer], prevItem, displayNewValue);
+		cout << format("Successfully changed item {}'s {} from {} to {}", index + 1, (*targetFormats)[answer], prevItem, displayNewValue);
 	}
 
 	if (fileName != "employees.txt") {
@@ -1414,7 +1414,7 @@ static void purchaseProduct() {
 	waitForInput();
 }
 
-// Handles editing the account currently logged in
+// Handles editing the currently logged in account
 static void editAccountDetails() {
 
 	fileInfoNum = 3;
@@ -1463,6 +1463,8 @@ static void program() {
 	while (!loggedIn) {
 
 		// Login or sign up
+		system("cls");
+
 		cout << "\n===================Aotearoa Treasures' Inventory Management System===================\n\n";
 		cout << "1. Login\n2. Sign up\n3. View reminders\n4. Exit\n\nSelect an option: ";
 		validateInput(userChoice, 1, 4);
@@ -1531,8 +1533,7 @@ static void program() {
 			}
 
 			//check password security
-			cout << "Please enter a password - password must be over 12 characters,\ncontain at least one number, and one special character ";
-			cout << "(type 0 to cancel): ";
+			cout << "Please enter a password - password must be over 12 characters,\ncontain at least one number, one letter, and one special character\n(type 0 to cancel): ";
 			cin >> password;
 			if (password == "0") {
 				break;

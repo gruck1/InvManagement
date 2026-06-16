@@ -3,7 +3,7 @@ Item1
 $20.00
 
 Item2
-1
+10
 $15.00
 
 Item3
@@ -15,6 +15,6 @@ The Next One
 $3.50
 
 Wah Wah
-1
+25
 $500.00
 
