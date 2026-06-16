@@ -480,6 +480,10 @@ static void editingRoster(int& index, int day) {
 	double startingHoursInt{}, endingHoursInt{};
 	string startingHoursString{}, endingHoursString{}, len{}, prevHours{};
 
+	/*
+	roster[index].size() is just a way to differentiate if a targetted day is being edited or everything is being edited.
+	A targetted day can never be 8 since Sunday's ID is 7.
+	*/
 	if (day != roster[index].size()) {
 		cout << "1. Assign hours to day\n2. Clear hours\n3. Back\n\n";
 		cout << "Please choose an option: ";
@@ -516,6 +520,28 @@ static void editingRoster(int& index, int day) {
 			}
 		}
 
+		/*
+		startingHoursString[3] gets the ASCII index rather than the actual number. 0 is 48 so you can take away 0's ASCII index away from the first index to get the original number.
+		Example:
+			startingHoursString[3] = 54 (6's ASCII index)
+			startingHoursString[4] = 51 (3's ASCII index)
+			54 - 48 = 6 (number we want that represents the 10's collumn of minutes)
+			6 * 10 = 60 (we now have the minutes in the 10's collumn)
+			51 - 48 = 3 (number we want that represents the 1's collumn of minutes)
+			60 + 3 = 63 (exceeds the maximum minutes on a clock)
+
+		Now we can just check them both in an "if" clause to see if firstly, the starting minutes go over the maximum minutes, then the ending minutes.
+		If they do, don't accept the input
+		*/
+		int startingMinutes = (startingHoursString[3] - '0') * 10 + (startingHoursString[4] - '0');
+
+		if (startingMinutes >= 60) {
+			system("cls");
+			cout << "\nError: starting time exceeds 60 minutes\n\n";
+			waitForInput();
+			return;
+		}
+
 		cout << format("Enter ending hours for {}", roster[index][0]);
 		if (day != roster[index].size()) {
 			cout << format(" on {}: ", rosterFormats[day]);
@@ -542,25 +568,11 @@ static void editingRoster(int& index, int day) {
 			return;
 		}
 
-		/*
-		startingHoursString[3] gets the ASCII index rather than the actual number. 0 is 48 so you can take away 0's ASCII index away from the first index to get the original number.
-		Example:
-			startingHoursString[3] = 54 (6's ASCII index)
-			startingHoursString[4] = 51 (3's ASCII index)
-			54 - 48 = 6 (number we want that represents the 10's collumn of minutes)
-			6 * 10 = 60 (we now have the minutes in the 10's collumn)
-			51 - 48 = 3 (number we want that represents the 1's collumn of minutes)
-			60 + 3 = 63 (exceeds the maximum minutes on a clock)
-
-		Now we can just check them both in an "if or" clause to see if any of them go over the maximum minutes.
-		If they do, don't accept the input
-		*/
-		int startingMinutes = (startingHoursString[3] - '0') * 10 + (startingHoursString[4] - '0');
 		int endingMinutes = (endingHoursString[3] - '0') * 10 + (endingHoursString[4] - '0');
 
-		if (startingMinutes >= 60 || endingMinutes >= 60) {
+		if (endingMinutes >= 60) {
 			system("cls");
-			cout << "\nError: input exceeds 60 minutes\n\n";
+			cout << "\nError: ending time exceeds 60 minutes\n\n";
 			waitForInput();
 			return;
 		}
@@ -588,7 +600,6 @@ static void editingRoster(int& index, int day) {
 
 		vectorToFile();
 		waitForInput();
-
 		break;
 	}
 
