@@ -1,12 +1,12 @@
 William
 Tester
-$1,000,000,000.00
+$99,999.00
 
 Daniel
-tester
-$30.50
+Developer
+$2,000.00
 
-Shnewbert
-Top Slave owner
-$67.00
+Dooby
+Testing Dooby
+$350.00
 

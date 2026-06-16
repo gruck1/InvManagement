@@ -1020,7 +1020,6 @@ static void addItem() {
 		case 0:
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			getline(cin, name);
-
 			convertToTitle(name);
 
 			if (name == "0") {
@@ -1050,6 +1049,7 @@ static void addItem() {
 			}
 			else {
 				getline(cin, role);
+				convertToTitle(role);
 
 				if (role == "0") {
 					return;
@@ -1170,7 +1170,6 @@ static void editEmployees() {
 			break;
 
 		case 4:
-			fileName = "";
 			return;
 		}
 	}
@@ -1209,7 +1208,6 @@ static void editAccounts() {
 			break;
 
 		case 3:
-			fileName = "";
 			return;
 		}
 
@@ -1326,7 +1324,6 @@ static void editRoster() {
 			break;
 
 		case 5:
-			fileName = "";
 			system("cls");
 			return;
 		}
@@ -1432,7 +1429,6 @@ static void editAccountDetails() {
 			break;
 
 		case 3:
-			fileName = "";
 			return;
 		}
 	}
@@ -1446,8 +1442,6 @@ static void program() {
 	int userChoice{};
 
 	while (!loggedIn) {
-
-		system("cls");
 
 		// Login or sign up
 		cout << "\n===================Aotearoa Treasures' Inventory Management System===================\n\n";
@@ -1558,6 +1552,7 @@ static void program() {
 		int userChoice{};
 
 		system("cls");
+
 		cout << "\n===================Aotearoa Treasures' Inventory Management System===================\n\n";
 		if (adminAccount) {
 			cout << "Logged in as admin\n\n";
