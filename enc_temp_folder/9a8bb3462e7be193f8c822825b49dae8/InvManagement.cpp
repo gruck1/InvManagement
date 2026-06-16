@@ -847,7 +847,7 @@ static void editingItem(int& max) {
 		displayNewValue = format("{}", commaFormat(newMoney));
 
 		if (newMoney < 29.90 && fileName == "employees.txt") {
-			cout << "Error: salary must be equal to or above living wage ($29.90)\n\n";
+			cout << "Error: salary must be equal to or above minimum wage ($29.90)\n\n";
 			waitForInput();
 			return;
 		}
