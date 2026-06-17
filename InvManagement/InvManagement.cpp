@@ -1557,7 +1557,7 @@ static void program() {
 			break;
 
 		case 3:
-			cout << "Don't forget,\nUsername: admin\nPassword: password\n\n";
+			cout << format("Don't forget,\nUsername: {}\nPassword: {}\n\n", accounts[0][0], accounts[0][1]);
 			waitForInput();
 			break;
 
