@@ -13,23 +13,26 @@
 #include <filesystem>
 #include <cstdlib>
 #include <locale>
+#include <chrono>
 
 using namespace std;
 using namespace filesystem;
 
-int vectorCount = 6;
+int vectorCount = 7;
 vector<vector<string>> wellington = {};
 vector<vector<string>> christchurch = {};
 vector<vector<string>> auckland = {};
 vector<vector<string>> accounts = {};
 vector<vector<string>> employees = {};
 vector<vector<string>> roster = {};
+vector<vector<string>> prevPurchases = {};
 // Don't add any vectors to vectorCount below here
 
 vector<string> inventoryFormats = { "name", "amount", "price" };
 vector<string> employeeFormats = { "name", "role", "salary" };
 vector<string> rosterFormats = { "name", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 vector<string> accountFormats = { "username", "password", "admin status" };
+vector<string> prevPurchasesFormats = { "username", "purchased product", "amount purchased", "total cost", "Inventory purchased from", "time" };
 
 vector<string>* targetFormats = &inventoryFormats;
 vector<vector<string>>* targetVec = &wellington;
@@ -144,6 +147,12 @@ static void getFileInfo(int index) {
 		targetFormats = &rosterFormats;
 		break;
 
+	case 6:
+		fileName = "prevPurchases.txt";
+		storeString = "previous purchases";
+		targetVec = &prevPurchases;
+		targetFormats = &prevPurchasesFormats;
+		break;
 	}
 }
 
@@ -1349,69 +1358,123 @@ static void editRoster() {
 	}
 }
 
+static void editPurchases() {
+
+	while (true) {
+
+		system("cls");
+		cout << "\n";
+
+		fileInfoNum = 6;
+		getFileInfo(6);
+
+		int answer{};
+
+		if (prevPurchases.size() == 0) {
+			cout << "There are no recent purchases\n\n";
+			waitForInput();
+			return;
+		}
+
+		viewDetails();
+
+		cout << "1. Clear recent purchases\n2. Back\n\n";
+		cout << "Please choose an option: ";
+		validateInput(answer, 1, 2);
+
+		switch (answer) {
+		case 1:
+			if (confirm("WARNING: You are about to clear all recent purchases. Do you wish to proceed?\n")) {
+				prevPurchases.clear();
+				fstream file(fileName, ios::out | ios::trunc);
+
+				cout << "Successfully cleared all recent purchases\n\n";
+				waitForInput();
+				return;
+			}
+			break;
+
+		case 2:
+			return;
+		}
+	}
+}
+
 // Handles purchasing products
 static void purchaseProduct() {
-	int productID{}, amount{};
-	string priceStr{}, amountStr, displayItem;
-	double price{}, totalPrice{};
 
 	pickStore();
-	system("cls");
-	cout << "\n";
 
-	viewDetails();
+	while (true) {
 
-	cout << "Enter the ID of the product you want to order (type 0 to cancel): ";
-	validateInput(productID, 0, (*targetVec).size());
+		int productID{}, amount{};
+		string priceStr{}, amountStr{}, displayItem{};
+		double price{}, totalPrice{};
+		
+		system("cls");
+		cout << "\n";
 
-	if (productID == 0) {
-		return;
-	}
+		viewDetails();
 
-	productID -= 1;
+		cout << "Enter the ID of the product you want to order (type 0 to cancel): ";
+		validateInput(productID, 0, (*targetVec).size());
 
-	displayItem = displaySpecificItem(productID);
+		if (productID == 0) {
+			return;
+		}
 
-	system("cls");
-	cout << "\n";
+		productID -= 1;
 
-	if ((*targetVec)[productID][1] == "0") {
-		cout << "This item has no stock. Please choose another\n\n";
+		displayItem = displaySpecificItem(productID);
+
+		system("cls");
+		cout << "\n";
+
+		if ((*targetVec)[productID][1] == "0") {
+			cout << "This item has no stock. Please choose another\n\n";
+			waitForInput();
+			continue;
+		}
+
+		cout << format("{}Enter the amount you want to order (type 0 to cancel): ", displayItem);
+		validateInput(amount, 0);
+
+		if (amount == 0) {
+			continue;
+		}
+
+		amountStr = (*targetVec)[productID][1];
+		erase(amountStr, ',');
+
+		priceStr = (*targetVec)[productID][2];
+		erase(priceStr, '$');
+		erase(priceStr, ',');
+		price = stod(priceStr);
+
+		totalPrice = price * amount;
+		priceStr = format("{}", commaFormat(totalPrice));
+
+		if (amount > stoi(amountStr)) {
+			cout << "\nError: not enough stock to order that amount\n\n";
+			waitForInput();
+			continue;
+		}
+
+		int newAmount = stoi(amountStr) - amount;
+		(*targetVec)[productID][1] = format("{}", commaFormat(newAmount));
+
+		// Puts the current date and time into a variable
+		auto time = chrono::current_zone()->to_local(chrono::system_clock::now());
+
+		fstream file("prevPurchases.txt", ios::app);
+		file << format("{}\n{}\n{}\n${}\n{}\n{}\n\n", username, (*targetVec)[productID][0], commaFormat(amount), commaFormat(priceStr), storeString, time);
+		prevPurchases.push_back({ username, (*targetVec)[productID][0], commaFormat(amount), format("${}", commaFormat(priceStr)), storeString, format("{}", time)});
+
+		cout << format("\nYou have successfully ordered {} {}(s) from {}'s inventory, costing ${}\n\n", commaFormat(amount), (*targetVec)[productID][0], storeString, commaFormat(priceStr));
+
+		vectorToFile();
 		waitForInput();
-		return;
 	}
-
-	cout << format("{}Enter the amount you want to order (type 0 to cancel): ", displayItem);
-	validateInput(amount, 0);
-
-	if (amount == 0) {
-		return;
-	}
-
-	amountStr = (*targetVec)[productID][1];
-	erase(amountStr, ',');
-
-	priceStr = (*targetVec)[productID][2];
-	erase(priceStr, '$');
-	erase(priceStr, ',');
-	price = stod(priceStr);
-
-	totalPrice = price * amount;
-	priceStr = format("{}", commaFormat(totalPrice));
-
-	if (amount > stoi(amountStr)) {
-		cout << "\nError: not enough stock to order that amount\n\n";
-		waitForInput();
-		return;
-	}
-
-	int newAmount = stoi(amountStr) - amount;
-	(*targetVec)[productID][1] = format("{}", commaFormat(newAmount));
-
-	cout << format("\nYou have successfully ordered {} {} from {}'s inventory, costing ${}\n\n", commaFormat(amount), (*targetVec)[productID][0], storeString, commaFormat(priceStr));
-
-	vectorToFile();
-	waitForInput();
 }
 
 // Handles editing the currently logged in account
@@ -1562,8 +1625,9 @@ static void program() {
 			break;
 
 		case 4:
-			exit(0);
-
+			if (confirm("Are you sure you want to quit the program?\n")) {
+				exit(0);
+			}
 		}
 	}
 
@@ -1577,25 +1641,22 @@ static void program() {
 		if (adminAccount) {
 			cout << "Logged in as admin\n\n";
 			cout << "1. View and edit inventory\n2. View and edit employees\n3. View and edit roster\n4. View and edit accounts\n";
-			cout << format("5. Toggle \"low stock only\" mode (currently {})\n6. Logout\n7. Exit", lowStockOnly);
+			cout << format("5. View purchase history\n6. Toggle \"low stock only\" mode (currently {})\n7. Logout\n8. Exit", lowStockOnly);
 			cout << "\n\nSelect an option: ";
-			validateInput(userChoice, 1, 7);
+			validateInput(userChoice, 1, 8);
 
 			system("cls");
 			cout << "\n";
 			switch (userChoice) {
 			case 1:
-				// View and edit all inventories
 				editInventory();
 				break;
 
 			case 2:
-				// add and delete employees from the account's vector, then export the vector to the text file
 				editEmployees();
 				break;
 
 			case 3:
-				// add and delete shifts from the roster vector, then export the vector to the text file
 				editRoster();
 				break;
 
@@ -1604,6 +1665,10 @@ static void program() {
 				break;
 
 			case 5:
+				editPurchases();
+				break;
+
+			case 6:
 				if (lowStockOnly) {
 					lowStockOnly = false;
 					cout << "\"Low Stock Only\" mode disabled. All items are visible to you\n\n";
@@ -1615,7 +1680,7 @@ static void program() {
 				waitForInput();
 				break;
 
-			case 6:
+			case 7:
 				loggedIn = false;
 				adminAccount = false;
 				lowStockOnly = false;
@@ -1624,10 +1689,10 @@ static void program() {
 				waitForInput();
 				break;
 
-			case 7:
-				exit(0);
-				break;
-
+			case 8:
+				if (confirm("Are you sure you want to quit the program?\n")) {
+					exit(0);
+				}
 			}
 		}
 		else {
@@ -1667,7 +1732,9 @@ static void program() {
 				break;
 
 			case 6:
-				exit(0);
+				if (confirm("Are you sure you want to quit the program?\n")) {
+					exit(0);
+				}
 			}
 		}
 
