@@ -508,7 +508,7 @@ static void editingRoster(int& index, int day) {
 	switch (answer) {
 	case 1: {
 
-		cout << "Use 24 hour time format, use a . for minutes e.g. 12.30\nAnything over 2 decimals will round\nType 0 in both prompts to cancel\n\n";
+		cout << "Use 24 hour time format, use a . for minutes e.g. 12.30\nAnything over 2 decimals will round\nType 0 at any point to cancel\n\n";
 
 		cout << format("Enter starting hours for {}", roster[index][0]);
 		if (day != roster[index].size()) {
@@ -518,6 +518,10 @@ static void editingRoster(int& index, int day) {
 			cout << ": ";
 		}
 		validateInput(startingHoursInt, 0, 24);
+
+		if (startingHoursInt == 0) {
+			return;
+		}
 
 		len = format("{:05.2f}", startingHoursInt);
 		for (int i = 0; i < len.length(); i++) {
@@ -558,7 +562,22 @@ static void editingRoster(int& index, int day) {
 		else {
 			cout << ": ";
 		}
-		validateInput(endingHoursInt, startingHoursInt, 24);
+		validateInput(endingHoursInt, 0, 24);
+
+		if (endingHoursInt == 0) {
+			return;
+		}
+
+		while (endingHoursInt <= startingHoursInt) {
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			cout << format("Please enter a number above {}: ", startingHoursInt);
+			validateInput(endingHoursInt, 0, 24);
+
+			if (endingHoursInt == 0) {
+				return;
+			}
+		}
 
 		len = format("{:05.2f}", endingHoursInt);
 		for (int i = 0; i < len.length(); i++) {
@@ -568,13 +587,6 @@ static void editingRoster(int& index, int day) {
 			else {
 				endingHoursString += len[i];
 			}
-		}
-
-		if (startingHoursInt == 0 && endingHoursInt == 0) {
-			system("cls");
-			cout << "\nOperation cancelled\n\n";
-			waitForInput();
-			return;
 		}
 
 		int endingMinutes = (endingHoursString[3] - '0') * 10 + (endingHoursString[4] - '0');
@@ -638,6 +650,11 @@ static void editingAccounts(int& index, int& value) {
 	switch (value) {
 	case 0:
 	case 1:
+
+		if ((*targetFormats)[value] == "password") {
+			cout << "Password must be at least 12 characters and have at least one letter, one number, and one special character\n";
+		}
+
 		cout << format("Enter new {} (type 0 to cancel): ", (*targetFormats)[value]);
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		cin >> newValue;
@@ -995,15 +1012,10 @@ static void deleteItem(int& max) {
 
 		vectorToFile();
 		getFileInfo(fileInfoNum);
+
 		cout << format("Successfully deleted item {} from {}\n\n", index + 1, storeString);
+		waitForInput();
 	}
-	else {
-		cout << "Deletion cancelled\n\n";
-	}
-
-	waitForInput();
-
-
 }
 
 // Handles deleting your account
@@ -1017,16 +1029,12 @@ static void deleteAccount() {
 
 				vectorToFile();
 				loggedIn = false;
+
 				cout << format("Your account {} has been successfully deleted\n\n", username);
+				waitForInput();
 			}
 		}
 	}
-	else {
-		cout << "Deletion cancelled\n\n";
-	}
-
-	waitForInput();
-
 }
 
 // Handles adding an item to either inventory or list of employees
@@ -1263,13 +1271,8 @@ static void clearHours(int& max) {
 		vectorToFile();
 
 		cout << format("Successfully cleared {}'s schedule\n\n", roster[index][0]);
+		waitForInput();
 	}
-	else {
-		cout << "Task cancelled\n\n";
-	}
-
-	waitForInput();
-
 }
 
 // Handles setting the entire roster back to "unset" for each employee
@@ -1291,13 +1294,8 @@ static void clearRoster() {
 		vectorToFile();
 
 		cout << "Successfully cleared roster\n\n";
+		waitForInput();
 	}
-	else {
-		cout << "Task cancelled\n\n";
-	}
-
-	waitForInput();
-
 }
 
 // Handles editing roster
