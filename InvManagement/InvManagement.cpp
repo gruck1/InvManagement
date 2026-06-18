@@ -56,15 +56,15 @@ static string commaFormat(auto& value, bool decimals = true) {
 	return ss.str();
 }
 
-// Handles invalid input and ranges
-static int validateInput(auto& validator, int lower = -1000000000, int higher = 1000000000) {
+// Handles invalid input and ranges. Default range is the minimum and maximum integer limit
+static int validateInput(auto& validator, int lower = numeric_limits<int>::min(), int higher = numeric_limits<int>::max()) {
 
 	cin >> validator;
 
 	while (cin.fail()) {
 		cin.clear();
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		cout << "Please input a valid integer: ";
+		cout << format("Please input a valid integer between {} and {}: ", commaFormat(lower), commaFormat(higher));
 		cin >> validator;
 	}
 
