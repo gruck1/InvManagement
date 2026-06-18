@@ -1384,6 +1384,10 @@ static void editPurchases() {
 
 		switch (answer) {
 		case 1:
+
+			system("cls");
+			cout << "\n";
+
 			if (confirm("WARNING: You are about to clear all recent purchases. Do you wish to proceed?\n")) {
 				prevPurchases.clear();
 				fstream file(fileName, ios::out | ios::trunc);
@@ -1396,7 +1400,7 @@ static void editPurchases() {
 
 		case 2:
 			return;
-		}
+		}\
 	}
 }
 
