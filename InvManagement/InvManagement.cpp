@@ -1400,7 +1400,7 @@ static void editPurchases() {
 
 		case 2:
 			return;
-		}\
+		}
 	}
 }
 
