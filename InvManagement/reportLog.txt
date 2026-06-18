@@ -1,0 +1,5 @@
+Total items in Wellington: 4
+Total items in Christchurch: 5
+Total items in Auckland: 3
+Total accounts: 3
+Total employees: 2

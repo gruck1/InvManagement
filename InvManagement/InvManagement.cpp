@@ -167,6 +167,18 @@ static void createFiles() {
 
 }
 
+static void reportLog() {
+
+	fstream file("reportLog.txt", ios::out);
+	vector<string> formats = { "Total items in Wellington", "Total items in Christchurch", "Total items in Auckland", "Total accounts", "Total employees" };
+
+	for (int i = 0; i < formats.size(); i++) {
+		getFileInfo(i);
+		file << format("{}: {}\n", formats[i], (*targetVec).size());
+	}
+
+}
+
 // Convert the text files to vectors
 static void fileToVector() {
 
@@ -1751,6 +1763,7 @@ int main() {
 
 	createFiles();
 	fileToVector();
+	reportLog();
 
 	program();
 
