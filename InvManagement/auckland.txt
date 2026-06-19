@@ -1,12 +1,12 @@
-Item1
+Alarm Clock
 50
 $20.00
 
-Item2
+Ancient Ahh Necklace
 20
 $15.00
 
-Item3
+Hippo
 3
 $3.00
 

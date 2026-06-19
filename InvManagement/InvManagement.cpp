@@ -170,12 +170,38 @@ static void createFiles() {
 static void reportLog() {
 
 	fstream file("reportLog.txt", ios::out);
-	vector<string> formats = { "Total items in Wellington", "Total items in Christchurch", "Total items in Auckland", "Total accounts", "Total employees" };
+	vector<int> info = {};
+	vector<string> formats =
+	{
+		"Total items in Wellington", "Total items in Christchurch",
+		"Total items in Auckland", "Total administrator accounts",
+		"Total regular accounts", "Total employees"
+	};
+
+	int admins{}, users{};
 
 	for (int i = 0; i < formats.size(); i++) {
 		getFileInfo(i);
-		file << format("{}: {}\n", formats[i], (*targetVec).size());
+		info.push_back((*targetVec).size());
 	}
+
+	for (int i = 0; i < accounts.size(); i++) {
+		if (accounts[i][2] == "true") {
+			admins++;
+		}
+		else {
+			users++;
+		}
+	}
+
+	info[3] = admins;
+	info.insert(info.begin() + 4, users);
+
+	for (int i = 0; i < formats.size(); i++) {
+		file << format("{}: {}\n", formats[i], info[i]);
+	}
+
+	getFileInfo(fileInfoNum);
 
 }
 
@@ -738,6 +764,8 @@ static void editingAccounts(int& index, int& value) {
 	vectorToFile();
 
 	cout << format("Successfully updated account {}'s {} from {} to {}\n\n", index + 1, (*targetFormats)[value], prevValue, accounts[index][value]);
+
+	reportLog();
 	waitForInput();
 
 }
@@ -976,6 +1004,7 @@ static void editingItem(int& max) {
 
 	cout << format("\nDetails,\n{}", displayItem);
 
+	reportLog();
 	waitForInput();
 
 }
@@ -1009,14 +1038,12 @@ static void deleteItem(int& max) {
 		return;
 	}
 
-	if (confirm(format("WARNING: You are about to delete item {} from {}\nDo you wish to proceed?\n", index + 1, storeString))) {
+	if (confirm(format("WARNING: You are about to delete {} from {}\nDo you wish to proceed?\n", (*targetVec)[index][0], storeString))) {
 
 		if ((*targetVec)[index][0] == username) {
 			loggedIn = false;
 			adminAccount = false;
 		}
-
-		(*targetVec).erase((*targetVec).begin() + index);
 
 		if (fileName == "employees.txt") {
 			roster.erase(roster.begin() + index);
@@ -1025,7 +1052,10 @@ static void deleteItem(int& max) {
 		vectorToFile();
 		getFileInfo(fileInfoNum);
 
-		cout << format("Successfully deleted item {} from {}\n\n", index + 1, storeString);
+		cout << format("Successfully deleted {} from {}\n\n", (*targetVec)[index][0], storeString);
+		(*targetVec).erase((*targetVec).begin() + index);
+
+		reportLog();
 		waitForInput();
 	}
 }
@@ -1043,7 +1073,11 @@ static void deleteAccount() {
 				loggedIn = false;
 
 				cout << format("Your account {} has been successfully deleted\n\n", username);
+
+				reportLog();
 				waitForInput();
+
+				return;
 			}
 		}
 	}
@@ -1140,6 +1174,7 @@ static void addItem() {
 		cout << format("\nSuccessfully added {} to list of employees\n\n", name);
 	}
 
+	reportLog();
 	waitForInput();
 
 }
@@ -1630,6 +1665,8 @@ static void program() {
 			file.close();
 
 			cout << "Successfully created account!\n\n";
+
+			reportLog();
 			waitForInput();
 			break;
 
