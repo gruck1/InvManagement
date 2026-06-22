@@ -177,15 +177,11 @@ static void reportLog() {
 		"Total items in Auckland", "Total administrator accounts",
 		"Total regular accounts", "Total employees"
 	};
-	vector<vector<string>> entries = {};
 
 	int admins{}, users{};
 
 	for (int i = 0; i < formats.size(); i++) {
 		getFileInfo(i);
-
-		for (int j = 0; j < UNFINISHED LINE)
-		entries.push_back({ (*targetVec)[i][0] });
 		info.push_back((*targetVec).size());
 	}
 

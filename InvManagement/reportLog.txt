@@ -1,6 +1,31 @@
-Total items in Wellington: 4
+==========Report Log==========
+
+Total items in Wellington: 5
+Golden Apple
+Shlooby
+Huzz
+Doobie
+Any Item
+
 Total items in Christchurch: 2
-Total items in Auckland: 3
-Total administrator accounts: 1
-Total regular accounts: 3
+New Name
+Wah Wah
+
+Total items in Auckland: 2
+Ancient Ahh Necklace
+Hippo
+
+Total administrator accounts: 2
+admin
+hello
+Daniel
+jayden
+
+Total regular accounts: 2
+William
+Daniel
+
 Total employees: 2
+William
+Daniel
+
