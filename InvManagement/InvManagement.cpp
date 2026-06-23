@@ -1,8 +1,4 @@
 
-/* Latest changes
-	- Added comma formatting
-*/
-
 #include <iostream>
 #include <sstream>
 #include <format>
