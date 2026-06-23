@@ -1528,6 +1528,7 @@ static void editRoster() {
 	}
 }
 
+// Handles viewing and clearing recently purchased items
 static void editPurchases() {
 
 	while (true) {
