@@ -238,7 +238,7 @@ static void reportLog() {
 	The difference allows the program to find the amount of spaces it needs before it adds a right border wall.
 	*/
 
-	int borderLength = timeStr.length() + 80; // the number here tweaks the width of the border
+	int borderLength = timeStr.length() + 50; // the number here tweaks the width of the border
 	int titleLength{};
 
 	// Get the width of the introductory title
@@ -817,6 +817,17 @@ static void editingAccounts(int& index, int& value) {
 				}
 			}
 
+			while (newValue.length() > 30) {
+				cin.clear();
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				cout << "Error: username must not be more than 30 characters. Please try again: ";
+				cin >> newValue;
+
+				if (newValue == "0") {
+					return;
+				}
+			}
+
 			if (checkLogin(newValue, password, "create")) {
 				cout << "Error: username already exists. Please pick a different one\n\n";
 				waitForInput();
@@ -989,6 +1000,12 @@ static void editingItem(int& max) {
 
 		if (newName.length() < 3) {
 			cout << "Error: name must be 3 characters or more\n\n";
+			waitForInput();
+			return;
+		}
+
+		if (newName.length() > 30) {
+			cout << "Error: name must not be longer than 30 characters\n\n";
 			waitForInput();
 			return;
 		}
@@ -1214,6 +1231,12 @@ static void addItem() {
 
 			if (name.length() < 3) {
 				cout << "Error: name must be 3 characters or more\n\n";
+				waitForInput();
+				return;
+			}
+
+			if (name.length() > 30) {
+				cout << "Error: name must not be longer than 30 characters\n\n";
 				waitForInput();
 				return;
 			}
@@ -1735,6 +1758,17 @@ static void program() {
 				cin.clear();
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				cout << "Error: username must be over 5 characters. Please try again: ";
+				cin >> username;
+
+				if (username == "0") {
+					break;
+				}
+			}
+
+			while (username.length() > 30) {
+				cin.clear();
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				cout << "Error: username must not be more than 30 characters. Please try again: ";
 				cin >> username;
 
 				if (username == "0") {
