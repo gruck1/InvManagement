@@ -1,20 +1,4 @@
-Golden Apple
-25
-$2,000.00
-
-Shlooby
-0
-$2.50
-
-Huzz
-5
-$3,599,999.62
-
-Doobie
-1,000
-$25.00
-
-Any Item
-5
-$300.00
+Sophia The First's Crown
+1
+$676,767.00
 

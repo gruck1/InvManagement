@@ -183,9 +183,33 @@ static void reportLog() {
 
 	for (int i = 0; i < formats.size(); i++) {
 		getFileInfo(i);
+		entries.push_back({});
 
-		for (int j = 0; j < UNFINISHED LINE)
-		entries.push_back({ (*targetVec)[i][0] });
+		if (fileName != "accounts.txt") {
+			cout << fileName << endl;
+			for (int j = 0; j < (*targetVec).size(); j++) {
+				entries.back().push_back((*targetVec)[j][0]);
+			}
+		}
+		// Splits up the admin and regular accounts since the report displays a summary of both
+		else {
+			cout << fileName << endl;
+			for (int j = 0; j < (*targetVec).size(); j++) {
+				if ((*targetVec)[j][2] == "true") {
+					entries.back().push_back((*targetVec)[j][0]);
+				}
+			}
+
+			entries.push_back({});
+
+			cout << fileName << endl;
+			for (int j = 0; j < (*targetVec).size(); j++) {
+				if ((*targetVec)[j][2] == "false") {
+					entries.back().push_back((*targetVec)[j][0]);
+				}
+			}
+		}
+
 		info.push_back((*targetVec).size());
 	}
 
@@ -204,11 +228,10 @@ static void reportLog() {
 	info.insert(info.begin() + 4, users);
 
 	for (int i = 0; i < formats.size(); i++) {
-		getFileInfo(i);
 		file << format("{}: {}\n", formats[i], info[i]);
 
-		for (int j = 0; j < (*targetVec).size(); j++) {
-			file << (*targetVec)[j][0] << endl;
+		for (int j = 0; j < entries[i].size(); j++) {
+			file << entries[i][j] << endl;
 		}
 		file << "\n";
 	}
@@ -359,14 +382,20 @@ static bool confirm(string text) {
 }
 
 // Handles choosing a store
-static void pickStore() {
+static bool pickStore() {
 
-	cout << "1. Wellington\n2. Christchurch\n3. Auckland\n\n";
+	cout << "1. Wellington\n2. Christchurch\n3. Auckland\n4. Back\n\n";
 	cout << "Please choose a store: ";
-	validateInput(storeNum, 1, 3);
+	validateInput(storeNum, 1, 4);
+
+	if (storeNum == 4) {
+		return false;
+	}
 
 	fileInfoNum = storeNum - 1;
 	getFileInfo(storeNum - 1);
+
+	return true;
 
 }
 
@@ -1052,7 +1081,7 @@ static void deleteItem(int& max) {
 
 	if (confirm(format("WARNING: You are about to delete {} from {}\nDo you wish to proceed?\n", (*targetVec)[index][0], storeString))) {
 
-		if ((*targetVec)[index][0] == username) {
+		if ((*targetVec)[index][0] == username && fileName == "accounts.txt") {
 			loggedIn = false;
 			adminAccount = false;
 		}
@@ -1061,11 +1090,11 @@ static void deleteItem(int& max) {
 			roster.erase(roster.begin() + index);
 		}
 
-		vectorToFile();
-		getFileInfo(fileInfoNum);
-
 		cout << format("Successfully deleted {} from {}\n\n", (*targetVec)[index][0], storeString);
 		(*targetVec).erase((*targetVec).begin() + index);
+
+		vectorToFile();
+		getFileInfo(fileInfoNum);
 
 		reportLog();
 		waitForInput();
@@ -1194,7 +1223,9 @@ static void addItem() {
 // Handles all the selecting stuff in the "edit inventory" menu
 static void editInventory() {
 
-	pickStore();
+	if (!pickStore()) {
+		return;
+	}
 
 	while (true) {
 
@@ -1464,7 +1495,9 @@ static void editPurchases() {
 // Handles purchasing products
 static void purchaseProduct() {
 
-	pickStore();
+	if (!pickStore()) {
+		return;
+	}
 
 	while (true) {
 
@@ -1768,7 +1801,10 @@ static void program() {
 			cout << "\n";
 			switch (userChoice) {
 			case 1:
-				pickStore();
+				if (!pickStore()) {
+					break;
+				}
+
 				system("cls");
 				cout << "\n";
 

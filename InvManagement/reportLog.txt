@@ -1,28 +1,19 @@
 ==========Report Log==========
 
-Total items in Wellington: 5
-Golden Apple
-Shlooby
-Huzz
-Doobie
-Any Item
+Total items in Wellington: 1
+Sophia The First's Crown
 
-Total items in Christchurch: 2
-New Name
-Wah Wah
+Total items in Christchurch: 0
 
 Total items in Auckland: 2
 Ancient Ahh Necklace
 Hippo
 
-Total administrator accounts: 2
+Total administrator accounts: 1
 admin
-hello
-Daniel
-jayden
 
 Total regular accounts: 2
-William
+hello
 Daniel
 
 Total employees: 2
