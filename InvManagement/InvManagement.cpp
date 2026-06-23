@@ -167,6 +167,7 @@ static void createFiles() {
 
 }
 
+// Generates a report log containing a summary of the program
 static void reportLog() {
 
 	fstream file("reportLog.txt", ios::out);
@@ -180,7 +181,10 @@ static void reportLog() {
 	vector<vector<string>> entries = {};
 
 	int admins{}, users{};
+	auto time = chrono::current_zone()->to_local(chrono::system_clock::now());
+	string timeStr = format("{:%F %T}", time);
 
+	// All these loops are just transporting all the vector information (names only) to a temporary vector
 	for (int i = 0; i < formats.size(); i++) {
 		getFileInfo(i);
 		entries.push_back({});
@@ -222,20 +226,79 @@ static void reportLog() {
 		}
 	}
 
-	file << "==========Report Log==========\n\n";
-
 	info[3] = admins;
 	info.insert(info.begin() + 4, users);
 
-	for (int i = 0; i < formats.size(); i++) {
-		file << format("{}: {}\n", formats[i], info[i]);
+	/*
+	The generated report has a custom border that can shrink and expand.
+	It works by relying on borderLength, titleLength, and lineLength.
+	borderLength is the time the report was generated at plus a custom number to add more width.
+	titleLength is the total width of the introductory title on the report (=====Report Log=====).
+	lineLength gets the width of each line that needs to be added so the difference between titleLength and lineLength can be found.
+	The difference allows the program to find the amount of spaces it needs before it adds a right border wall.
+	*/
 
-		for (int j = 0; j < entries[i].size(); j++) {
-			file << entries[i][j] << endl;
+	int borderLength = timeStr.length() + 80; // the number here tweaks the width of the border
+	int titleLength{};
+
+	// Get the width of the introductory title
+	for (int i = 0; i < borderLength / 2; i++) {
+		file << "=";
+		titleLength++;
+	}
+	file << "Report Log";
+	titleLength += string("Report Log").length();
+	for (int i = 0; i < borderLength / 2; i++) {
+		file << "=";
+		titleLength++;
+	}
+	file << "=\n";
+
+	for (int i = 0; i < formats.size(); i++) {
+
+		// Display a format from formats, then its information
+		file << format("|{}: {}", formats[i], info[i]);
+		int lineLength = formats[i].length() + to_string(info[i]).length() + string("|: ").length();
+		for (int j = 0; j < titleLength - lineLength; j++) {
+			file << " ";
 		}
-		file << "\n";
+		file << "|\n";
+
+		// Display a summary of names from each vector
+		for (int j = 0; j < entries[i].size(); j++) {
+			file << format("|{}", entries[i][j]);
+			int lineLength = entries[i][j].length() + 1;
+			for (int j = 0; j < titleLength - lineLength; j++) {
+				file << " ";
+			}
+			file << "|\n";
+		}
+		file << "|";
+
+		// Add spacing after each name is done printing
+		for (int j = 0; j < titleLength - 1; j++) {
+			file << "-";
+		}
+		file << "|\n";
+
 	}
 
+	// Display the time the report was generated at
+	file << "|";
+	file << format("Report log generated at: {}", time);
+	int lineLength = string("Report log generated at: ").length() + timeStr.length();
+	for (int j = 0; j < titleLength - lineLength - 1; j++) { // I honestly have no idea why 1 needs to be taken away from the difference of these variables but it makes it work
+		file << " ";
+	}
+	file << "|\n";
+
+	// Finish off the report with a nice pattern matching the introductory title
+	for (int i = 0; i < titleLength; i++) {
+		file << "=";
+	}
+	file << "=\n";
+
+	// Finally, set the file information back to whatever it was the user was doing like adding an item to Auckland's inventory
 	getFileInfo(fileInfoNum);
 
 }
