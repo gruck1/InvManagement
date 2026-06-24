@@ -1,25 +1,31 @@
 ======================================Report Log=======================================
-|Total items in Wellington: 2                                                         |
-|Sophia The First's Crown                                                             |
-|Rahhhhh                                                                              |
+|Total items in Wellington: 5                                                         |
+|Pounamu - Greenstone                                                                 |
+|Porcelain Vase                                                                       |
+|Grandfather Clock                                                                    |
+|Grand Piano                                                                          |
+|Vintage Table                                                                        |
 |-------------------------------------------------------------------------------------|
-|Total items in Christchurch: 1                                                       |
-|Doobie                                                                               |
+|Total items in Christchurch: 3                                                       |
+|Necklace                                                                             |
+|Authentic Vintage Pocket Watch                                                       |
+|Music Box                                                                            |
 |-------------------------------------------------------------------------------------|
-|Total items in Auckland: 2                                                           |
-|Ancient Ahh Necklace                                                                 |
-|Hippo                                                                                |
+|Total items in Auckland: 4                                                           |
+|Alexandrite Engagement Ring                                                          |
+|Hand-crafted Human Sculpture                                                         |
+|Chandelier                                                                           |
+|Paua Shell Necklace                                                                  |
 |-------------------------------------------------------------------------------------|
 |Total administrator accounts: 1                                                      |
 |admin                                                                                |
 |-------------------------------------------------------------------------------------|
-|Total regular accounts: 2                                                            |
-|hello                                                                                |
-|Daniel                                                                               |
+|Total regular accounts: 1                                                            |
+|johndoe                                                                              |
 |-------------------------------------------------------------------------------------|
 |Total employees: 2                                                                   |
 |William                                                                              |
 |Daniel                                                                               |
 |-------------------------------------------------------------------------------------|
-|Report log generated at: 2026-06-23 19:38:33.6653204                                 |
+|Report log generated at: 2026-06-25 11:40:42.9332541                                 |
 =======================================================================================

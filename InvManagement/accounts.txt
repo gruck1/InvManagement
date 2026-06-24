@@ -2,11 +2,7 @@ admin
 password
 true
 
-hello
+johndoe
 hellothere123!
-false
-
-Daniel
-DanielProsser922!
 false
 

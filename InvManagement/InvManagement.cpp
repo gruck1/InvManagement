@@ -186,14 +186,12 @@ static void reportLog() {
 		entries.push_back({});
 
 		if (fileName != "accounts.txt") {
-			cout << fileName << endl;
 			for (int j = 0; j < (*targetVec).size(); j++) {
 				entries.back().push_back((*targetVec)[j][0]);
 			}
 		}
 		// Splits up the admin and regular accounts since the report displays a summary of both
 		else {
-			cout << fileName << endl;
 			for (int j = 0; j < (*targetVec).size(); j++) {
 				if ((*targetVec)[j][2] == "true") {
 					entries.back().push_back((*targetVec)[j][0]);
@@ -202,7 +200,6 @@ static void reportLog() {
 
 			entries.push_back({});
 
-			cout << fileName << endl;
 			for (int j = 0; j < (*targetVec).size(); j++) {
 				if ((*targetVec)[j][2] == "false") {
 					entries.back().push_back((*targetVec)[j][0]);
